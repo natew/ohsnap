@@ -30,6 +30,8 @@ var app = {
     this.bindEvents();
     this.setupButtons();
     this.setupPanels();
+    this.setupGender();
+    this.setupCategories();
   },
 
   setupPanels: function() {
@@ -46,10 +48,6 @@ var app = {
       data.panelIndex--;
       data.panels[data.panelIndex].removeClass('off');
     });
-
-    $('#male,#female').click(function() {
-      data.gender = $(this).attr('id');
-    });
   },
 
   nextPanel: function() {
@@ -62,18 +60,57 @@ var app = {
   },
 
   setupButtons: function() {
-    $('body').on('tap', '.button', function(e) {
+    $('body').on('tap', '.btn-next', function(e) {
+      if ($(this).is('.disabled')) return;
       e.preventDefault();
+      app.nextPanel();
+    });
+  },
 
-      var el = $(this);
-      
-      if (el.is('.btn-next')) {
-        app.nextPanel();
+  setupCategories: function() {
+    var numSelected = 0;
+
+    // Toggles! Limit to 3
+    $('.toggles').on('tap', 'a', function() {
+      var el = $(this),
+          selected = el.is('.active');
+
+      if (selected) {
+        numSelected--;
+        el.removeClass('active');
       }
+      else {
+        if (numSelected < 3) {
+          numSelected++;
+          el.addClass('active');
+        }
+      }
+
+      $('#btn-start').toggleClass('disabled', !numSelected);
     });
 
-    $('.toggles').on('tap', 'a', function() {
-      $(this).toggleClass('active');
+    $('#btn-start').one('tap', function() {
+      var el = $(this);
+      el.html('Loading...');
+
+      $.ajax({
+        type: 'POST',
+        url: '',
+        data: {
+          gender: data.gender,
+          categories: $('.toggles .active').pluck('id')
+        },
+        success: function(data) {
+          // this.setupGame(data);
+          el.addClass('btn-next').trigger('tap');
+        }
+      });
+    });
+  },
+
+  setupGender: function() {
+    $('#male,#female').click(function() {
+      data.gender = $(this).attr('id');
     });
   },
 
