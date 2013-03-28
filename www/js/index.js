@@ -119,7 +119,7 @@ var app = {
           $('#item-image').attr('src', currentRoundItems.pop());
       }
       else {
-          $('#item-image').attr('src', '/img/happy-face.png');
+          $('#item-image').attr('src', 'img/happy-face.png');
       }
     });
   },
