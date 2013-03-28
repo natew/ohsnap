@@ -72,15 +72,7 @@ var app = {
       data.panels.push($(this));
     });
 
-    $('#panels').on('next', '.panel', function() {
-      data.panelIndex++;
-      $(this).addClass('off');
-    });
-
-    $('#panels').on('prev', '.panel', function() {
-      data.panelIndex--;
-      data.panels[data.panelIndex].removeClass('off');
-    });
+    $('.panel').css('height', data.appHeight + 40 + "px");
   },
 
   nextPanel: function() {

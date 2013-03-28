@@ -95,11 +95,18 @@ h4 {
   text-align: center;
 }
 
+#panels {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: #0e1522;
+}
+
 .panel {
   display: none;
   position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   background: #0e1522;
@@ -388,11 +395,6 @@ h4 {
 
 #nah span {
   background-image: url(../img/icon-trash.png);
-}
-
-#end-of-round {
-  display: block;
-  z-index: 100;
 }
 
 #round-stats {
