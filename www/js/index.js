@@ -17,10 +17,13 @@
  * under the License.
  */
 
+var timerInterval;
+
 var data = {
   panels: [],
   panelIndex: 0,
-  gender: null
+  gender: null,
+  timings: { 1: 5, 2: 20, 3: 15 }
 };
 
 var app = {
@@ -92,19 +95,8 @@ var app = {
     $('#btn-start').one('tap', function() {
       var el = $(this);
       el.html('Loading...');
-
-      $.ajax({
-        type: 'POST',
-        url: '',
-        data: {
-          gender: data.gender,
-          categories: $('.toggles .active').pluck('id')
-        },
-        success: function(data) {
-          // this.setupGame(data);
-          el.addClass('btn-next').trigger('tap');
-        }
-      });
+      el.addClass('btn-next');
+      app.getRound(1);
     });
   },
 
@@ -112,6 +104,81 @@ var app = {
     $('#male,#female').click(function() {
       data.gender = $(this).attr('id');
     });
+  },
+
+  getRound: function(round) {
+
+    var data = [
+      {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
+    ];
+
+    app.loadRound(1, data);
+
+    if (false) {
+      $.ajax({
+        dataType: 'JSONP',
+        type: 'GET',
+        url: 'http://ohsnap.elasticbeanstalk.com/recommendation/custId/1/resultSize/10',
+        success: function(data) {
+          console.log(data);
+        }
+      });
+    }
+
+    if (false) {
+      $.ajax({
+        type: 'POST',
+        url: 'http://ohsnap.elasticbeanstalk.com/start',
+        data: {
+          gender: data.gender,
+          categories: $('.toggles .active').pluck('id')
+        },
+        success: function(data) {
+        }
+      });
+    }
+  },
+
+  loadRound: function(round, data) {
+    app.loadImages(data);
+    app.startTimer(round);
+    $('#panel-game').addClass('loaded');
+  },
+
+  loadImages: function(data) {
+    var i,
+        len = data.length;
+
+    $('#game-images').html('');
+
+    for (i = 0; i < len; i++) {
+      $('<img>').attr('src', data[i].url).appendTo('#game-images');
+    }
+  },
+
+  startTimer: function(round) {
+    var roundLength = data.timings[round] * 1000;
+
+    app.updateTimer(roundLength);
+
+    timerInterval = setInterval(function() {
+      roundLength -= 10;
+      app.updateTimer(roundLength);
+    }, 10);
+  },
+
+  updateTimer: function(total) {
+    if (total <= 0) {
+      clearInterval(timerInterval);
+    }
+
+    var s = Math.floor(total / 1000) + "",
+        ms = (total % 1000) + "";
+
+    while (s.length < 2) s = "0" + s;
+    while (ms.length < 3) ms = "0" + ms;
+
+    $('#timer').html(s + ':' + ms);
   },
 
   // Bind Event Listeners

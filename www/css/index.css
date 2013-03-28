@@ -192,11 +192,11 @@ h2 {
 }
 
 #shoes {
-  background-image: url(img/icon-shoe.png);
+  background-image: url(../../../img/icon-shoe.png);
 }
 
 #clothing {
-  background-image: url(/img/icon-shirt.png);
+  background-image: url(../../../img/icon-shirt.png);
 }
 
 #accessories {
@@ -216,7 +216,7 @@ h2 {
 }
 
 #panel-game {
-  padding: 40px 0;
+  padding: 20px 0;
   text-align: center;
 }
 
@@ -231,17 +231,11 @@ h2 {
   color: #fff;
   margin: 0 0 20px 0;
   padding: 0;
-  list-style: none;
 }
 
-#round li {
+#round span {
+  vertical-align: top;
   display: inline-block;
-  vertical-align: middle;
-  margin: 0 4px;
-}
-
-#round li span {
-  display: block;
   background: #2b8988;
   color: #42d2d0;
   height: 33px;
@@ -249,14 +243,32 @@ h2 {
   -webkit-border-radius: 4px;
   font-weight: bold;
   font-size: 18px;
+  position: relative;
+  z-index: 1;
+  -webkit-transition: all 500ms ease-in;
+}
+
+#panel-game.loaded #bar {
+  opacity: 1;
+  margin: 0 0 0 -38px;
+  width: 200px;
+}
+
+#panel-game.loaded #round .current {
+  opacity: 0;
 }
 
 #bar {
+  display: inline-block;
+  margin: 0 0 0 -12px;
   position: relative;
   border: 4px solid #ff126a;
-  width: 160px;
+  width: 0;
+  z-index: 0;
   height: 33px;
+  opacity: 0;
   -webkit-border-radius: 4px;
+  -webkit-transition: all 500ms ease-in;
 }
 
 #position {
