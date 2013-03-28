@@ -410,6 +410,28 @@ h4 {
   background-image: url(../img/icon-trash.png);
 }
 
+#im-done {
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  color: #263d5c;
+  display: block;
+  left: 50%;
+  width: 100px;
+  margin-left: -50px;
+  font-size: 22px;
+}
+
+#im-done:before {
+  content: '';
+  display: block;
+  margin: 0 auto 10px;
+  width: 42px;
+  height: 42px;
+  background: url(../img/icon-x.png) no-repeat 0 0;
+  background-size: 100% auto;
+}
+
 #round-stats {
   margin: 20px 15px 0;
   padding: 40px 0 40px;

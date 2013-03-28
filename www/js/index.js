@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 20000, 2: 2, 3: 15 }, // seconds per round
+  timings: { 1: 30, 2: 20, 3: 10 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -68,6 +68,18 @@ var app = {
     this.setupGender();
     this.setupCategories();
     this.setupStartButton();
+    this.setupDoneButton();
+  },
+
+  resetGame: function() {
+    data.currentRound = 0;
+    data.rounds = [];
+    data.roundLoaded = false;
+    data.panelIndex = 0;
+    $('.panel').removeClass('off on');
+    $('#panel-home').addClass('on');
+    $('.toggles a').removeClass('active');
+    app.resetRoundPanel();
   },
 
   setupPanels: function() {
@@ -125,6 +137,12 @@ var app = {
       app.incrementRound();
       app.loadRound();
       app.startNextRound();
+    });
+  },
+
+  setupDoneButton: function() {
+    $('#im-done').on('tap', function() {
+      app.resetGame();
     });
   },
 
