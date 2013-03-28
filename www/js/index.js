@@ -71,8 +71,6 @@ var app = {
     $('.panel').each(function() {
       data.panels.push($(this));
     });
-
-    $('.panel').css('height', data.appHeight + 40 + "px");
   },
 
   nextPanel: function() {
