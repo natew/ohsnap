@@ -25,12 +25,14 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 5, 2: 20, 3: 15 }, // seconds per round
+  timings: { 1: 2, 2: 2, 3: 15 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
   rounds: [],
-  totalRounds: 3
+  totalRounds: 3,
+  appHeight: $(window).height(),
+  betweenPanelLength: 3000
 };
 
 var Round = function(number) {
@@ -230,6 +232,8 @@ var app = {
   showBetweenRoundPanel: function() {
     $('#end-of-round').addClass('shown');
 
+    app.updateRoundCounter();
+
     var checkRoundLoaded;
     setTimeout(function() {
       checkRoundLoaded = setInterval(function() {
@@ -248,7 +252,7 @@ var app = {
           alert('timed out!');
         }
       }, 2000);
-    }, 4800);
+    }, data.betweenPanelLength - 200);
   },
 
   startNextRound: function() {
@@ -311,6 +315,14 @@ var app = {
     while (ms.length < 3) ms = "0" + ms;
 
     $('#timer').html(s + ':' + ms);
+  },
+
+  updateRoundCounter: function() {
+    var prev = $('#round-' + (data.currentRound - 1)),
+        cur = $('#round-' + data.currentRound);
+
+    prev.removeClass('current');
+    cur.addClass('current').after($('#bar').remove());
   },
 
   // Bind Event Listeners

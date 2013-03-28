@@ -62,21 +62,37 @@ div, a, span, img {
   -webkit-box-sizing: border-box;
 }
 
-h1, h2 {
+h1, h2, h3, h4 {
   font-weight: normal;
   margin: 0 0 10px 0;
   line-height: 1em;
+}
+
+h1, h4 {
   font-family: 'Handlee', 'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
 }
 
 h1 {
   text-align: center;
-  color: #4375bc
+  color: #4375bc;
 }
 
 h2 {
   text-align: center;
   color: #2e486c;
+}
+
+h3 {
+  text-align: center;
+  color: #5f95df;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+h4 {
+  font-size: 30px;
+  color: #fff;
+  text-align: center;
 }
 
 .panel {
@@ -86,7 +102,8 @@ h2 {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #0c121b;
+  background: #0e1522;
+  -webkit-transform: translate3d(0,0,0);
 }
 
 @-webkit-keyframes fall {
@@ -102,20 +119,25 @@ h2 {
 
 .panel.on {
   z-index: 2;
-  display: block;
+  display: table;
   -webkit-box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.panel .center {
+  display:table-cell;
+  vertical-align:middle;
 }
 
 .panel.off {
   -webkit-animation: fall 500ms 1;
   -webkit-animation-fill-mode: forwards;
-  display: block;
+  display: table;
   z-index: 3;
   pointer-events: none;
 }
 
 .panel.next {
-  display: block;
+  display: table;
   z-index: 1;
 }
 
@@ -134,13 +156,50 @@ h2 {
   -webkit-border-radius: 4px;
 }
 
+.icon-before:before {
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  width: 29px;
+  height: 29px;
+  display: inline-block;
+  content: '';
+  margin: 0 10px 0 0;
+}
+
+#get-snappin:before {
+  background-image: url(../img/icon-clock.png);
+}
+
+#male:before, #female:before {
+  background-size: auto 100%;
+  width: 16px;
+  height: 41px;
+  margin: -10px 10px -10px -10px;
+}
+
+#male:before {
+  background-image: url(../img/icon-guy.png);
+}
+
+#female:before {
+  background-image: url(../img/icon-gal.png);
+}
+
 .menu-panel a.btn-alt {
+  font-size: 36px;
   background: #ff126a;
   font-family: "Handlee";
 }
 
 .menu-panel a.disabled {
   opacity: 0.2;
+}
+
+.btn-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 15px;
+  right: 15px;
 }
 
 .toggles {
@@ -261,7 +320,7 @@ h2 {
 
 #bar {
   display: inline-block;
-  margin: 0 0 0 -12px;
+  margin: 0 0 0 10px;
   position: relative;
   border: 4px solid #ff126a;
   width: 0;
@@ -278,6 +337,7 @@ h2 {
   left: 0;
   bottom: 0;
   background: #9f154f;
+  -webkit-transition: all 100ms linear;
 }
 
 #game-images img {
@@ -331,9 +391,18 @@ h2 {
 }
 
 #end-of-round {
-  background: url(../img/endofround.png) no-repeat 0 0;
-  background-size: 100% auto;
-} 
+  display: block;
+  z-index: 100;
+}
+
+#round-stats {
+  margin: 20px 15px 0;
+  padding: 40px 0 40px;
+}
+
+#round-stats h4 {
+  margin: 0 0 26px 0;
+}
 
 #end-of-round.shown {
   z-index: 100;
@@ -341,24 +410,49 @@ h2 {
 }
 
 #end-of-round ul {
+  border-top: 4px solid #ff126a;
+  border-bottom: 4px solid #ff126a;
   list-style: none;
-  padding: 0;
+  padding: 20px 0;
   margin: 0;
-  position: absolute;
-  top: 38%;
-  left: 20px;
-  right: 20px;
   text-align: center;
   line-height: 2em;
   color: #5f95df;
   font-size: 22px;
 }
 
+#end-of-round ul:before {
+  margin: -34px 0 12px;
+  content: '';
+  display: block;
+  height: 26px;
+  background: url(../img/icon-round-check.png) no-repeat top center;
+  background-size: auto 100%;
+  text-align: center;
+}
+
 #end-of-round strong {
-  padding: 2px 5px;
+  padding: 2px 5px 2px 6px;
   background: #ff126a;
   color: #0f1926;
   -webkit-border-radius: 4px;
+  margin: 0 5px 0 -10px;
+}
+
+#end-of-round .stat-teal strong {
+  background: #2b8988;
+}
+
+#end-of-round .stat-blue strong {
+  background: #2a4468;
+}
+
+#spinner {
+  margin: 0 auto 30px;
+  width: 31px;
+  height: 31px;
+  background: url(../img/spinner.png) no-repeat 0 0;
+  background-size: 100% auto;
 }
 
 /* Landscape layout (with min-width) */

@@ -30,14 +30,19 @@
         
         <div id="panels">
           <div id="panel-home" class="panel menu-panel on">
-            <a id="start" class="button btn-next">Start</a>
-            <a id="stats" class="button disabled">Stats</a>
-            <a id="settings" class="button disabled">Settings</a>
+            <div class="center">
+              <a id="get-snappin" class="button btn-next btn-alt icon-before">Get Snappin'</a>
+              <a id="stats" class="button disabled">See My Likes</a>
+              <a id="settings" class="button disabled">View My Stats</a>
+            </div>
           </div>
 
           <div id="panel-gender" class="panel menu-panel next">
-            <a id="male" class="button btn-next">Guy</a>
-            <a id="female" class="button btn-next">Gal</a>
+            <div class="center">
+              <h3>I am a...</h3>
+              <a id="male" class="button btn-next icon-before">Guy</a>
+              <a id="female" class="button btn-next icon-before">Gal</a>
+            </div>
           </div>
 
           <div id="panel-category" class="panel menu-panel">
@@ -53,7 +58,7 @@
               <a id="beauty">Beauty</a>
             </div>
             
-            <a id="btn-start" class="btn-alt disabled">Start!</a>
+            <a id="btn-start" class="btn-bottom btn-alt disabled">Start!</a>
           </div>
 
           <!-- game panel -->
@@ -90,11 +95,17 @@
 
           <!-- between game -->
           <div id="end-of-round" class="panel">
-            <ul>
-              <li class="stat-pink"><strong>10</strong> Products you loved</li>
-              <li class="stat-teal"><strong>10</strong> Products you loved</li>
-              <li class="stat-blue"><strong>10</strong> Products you loved</li>
-            </ul>
+            <div id="round-stats">
+              <h4>Round One Complete!</h4>
+              <ul>
+                <li class="stat-pink"><strong>10</strong> Products you loved</li>
+                <li class="stat-teal"><strong>10</strong> Products you loved</li>
+                <li class="stat-blue"><strong>10</strong> Products you loved</li>
+              </ul>
+            </div>
+
+            <div id="spinner"></div>
+            <h2>Reticulating splines...</h2>
           </div>
           <!-- end between game -->
 
