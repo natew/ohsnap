@@ -32,7 +32,8 @@ var data = {
   rounds: [],
   totalRounds: 3,
   appHeight: $(window).height(),
-  betweenPanelLength: 3000
+  betweenPanelLength: 3000,
+  sidebarOpacityMultiplier: 2
 };
 
 var Round = function(number) {
@@ -45,7 +46,6 @@ var Round = function(number) {
   self.countLiked = 0;
   self.countDisliked = 0;
   self.roundComplete = false;
-  self.currentItem = null;
 };
 
 var ItemResult = function(like) {
@@ -53,6 +53,10 @@ var ItemResult = function(like) {
   this.like = like;
   this.timeToDecide = 0;
 };
+
+var love = $('#love'),
+    nah = $('#nah'),
+    img, imgMid, pastHalf, opacity;
 
 var app = {
 
@@ -64,7 +68,6 @@ var app = {
     this.setupGender();
     this.setupCategories();
     this.setupStartButton();
-    this.setupItemImages();
   },
 
   setupPanels: function() {
@@ -141,21 +144,17 @@ var app = {
     });
   },
 
-  setupItemImages: function() {
+  bindItemImageEvents: function() {
     var lastPos = [0, 0],
         curPos = [0, 0],
         wait = false,
         sampleRate = 10,
-        moverTimeout,
-        love = $('#love'),
-        nah = $('#nah'),
-        img, imgMid, pastHalf, opacity,
-        opacityMultiplier = 2;
+        moverTimeout;
 
     $('.item-image')
       .draggable({
         start: function() {
-          var imgWidth = $('.item-image').width();
+          var imgWidth = $(this).width();
 
           data.screenWidth = $(window).width();
           data.screenHalf = data.screenWidth / 2;
@@ -165,17 +164,8 @@ var app = {
         },
 
         drag: function(e) {
-          img = this[0],
-          imgMid = img.offsetLeft + data.imgHalf,
-          pastHalf = imgMid > data.screenHalf;
-
-          if (pastHalf) {
-            opacity = 1 - ((data.screenWidth - imgMid) / data.screenHalf);
-            love.css('opacity', opacity * opacityMultiplier);
-          } else {
-            opacity = (data.screenHalf - imgMid) / data.screenHalf;
-            nah.css('opacity', opacity * opacityMultiplier);
-          }
+          img = this[0];
+          app.calcSidebarOpacity(img);
 
           if (!lastPos) {
             lastPos = offsets(img);
@@ -188,38 +178,38 @@ var app = {
 
                 // Store values
                 lastPos = curPos;
-                curPos = offsets(img);
+                curPos = img.offsetLeft;
               }, sampleRate);
             }
-          }
-
-
-          function offsets(obj) {
-            return [obj.offsetTop, obj.offsetLeft];
           }
         },
 
         stop: function() {
           var img = this[0],
-              zImg = $('.item-image'),
-              difference = [ curPos[0] - lastPos[0], curPos[1] - lastPos[1] ],
+              zImg = $(this),
+              difference = curPos - lastPos,
+              direction = difference > 0 ? 1 : -1,
               curTop = img.offsetTop,
               curLeft = img.offsetLeft;
-
-          console.log(img, 'diff', difference, 'top, left', curTop, curLeft);
 
           moverTimeout = setTimeout(mover, sampleRate);
 
           function mover() {
-            curTop += difference[0];
-            curLeft += difference[1];
+            curLeft += direction * Math.max( Math.abs(difference), 10); // min speed
 
-            zImg.css({
-              top: curTop,
-              left: curLeft
-            });
-
-            moverTimeout = setTimeout(mover, sampleRate);
+            if (curLeft > data.screenWidth) {
+              zImg.remove();
+              app.recordItemResult(true);
+            }
+            else if (curLeft < 0) {
+              zImg.remove();
+              app.recordItemResult(false);
+            }
+            else {
+              app.calcSidebarOpacity(img);
+              zImg.css({ left: curLeft });
+              moverTimeout = setTimeout(mover, sampleRate);
+            }
           }
         }
       })
@@ -229,52 +219,46 @@ var app = {
       .on('draggable:end', function() {
         $(this).removeClass('is-dragging centered');
       });
+  },
 
+  calcSidebarOpacity: function(img) {
+    imgMid = img.offsetLeft + data.imgHalf,
+    pastHalf = imgMid > data.screenHalf;
 
-    $('#game-images').on('swipeRight', function() {
-      app.recordItemResult(true);
-    });
-
-    $('#game-images').on('swipeLeft', function() {
-      app.recordItemResult(false);
-    });
+    if (pastHalf) {
+      opacity = 1 - ((data.screenWidth - imgMid) / data.screenHalf);
+      love.css('opacity', opacity * data.sidebarOpacityMultiplier);
+    } else {
+      opacity = (data.screenHalf - imgMid) / data.screenHalf;
+      nah.css('opacity', opacity * data.sidebarOpacityMultiplier);
+    }
   },
 
   recordItemResult: function(like) {
-    var round = app.getCurrentRound(),
-        itemsRemaining = round.items.length;
+    var round = app.getCurrentRound();
+    if (round.roundComplete) return false;
 
-    // Only do stuff if the round needs to be finished
-    if (!round.roundComplete) {
+    round.countCompletedItems++;
+    app.updateSidebar(round, like);
 
-      // Update sidebar
-      app.updateSidebar(round, like);
+    // Push result
+    round.itemResults.push(new ItemResult(like));
 
-      // Create a result object and add it to the round results array
-      var itemResult = new ItemResult(like);
-      round.itemResults.push(itemResult);
-
-      // If we have more images
-      if (itemsRemaining > 0) {
-        round.countCompletedItems++;
-
-        // Update percent done progress
-        if (round.countItems > 0) {
-          var percentDone = Math.round(round.countCompletedItems * 100 / round.countItems);
-          $('#position').css('width', percentDone + '%');
-        }
-
-        round.currentItem = round.items.pop();
-        $('.item-image').attr('src', round.currentItem.url);
+    // If we have more images
+    if (round.countCompletedItems != round.countItems) {
+      // Update percent done progress
+      if (round.countItems > 0) {
+        var percentDone = Math.round(round.countCompletedItems * 100 / round.countItems);
+        $('#position').css('width', percentDone + '%');
       }
-
+    }
+    else {
       // No more images
-      else {
-        $('#position').css('width', '100%');
-        round.countCompletedItems++;
-        round.roundComplete = true;
-        app.completeRound();
-      }
+      $('#position').css('width', '100%');
+      round.countCompletedItems++;
+      round.roundComplete = true;
+      console.log(app.getCurrentRound());
+      app.completeRound();
     }
   },
 
@@ -349,7 +333,14 @@ var app = {
   loadRound: function(callback) {
     var roundNumber = app.getCurrentRound().roundNumber;
     // Temp
-    var items = [{"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}];
+    var items = [
+      {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},
+      {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},
+      {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},
+      {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},
+      {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
+    ];
+
     data.roundLoaded = true;
 
     app.loadImages(items);
@@ -359,13 +350,17 @@ var app = {
   },
 
   loadImages: function(items) {
-    var round = app.getCurrentRound();
+    var i, len, round = app.getCurrentRound();
 
     round.countItems = items.length;
     round.items = items;
-    round.currentItem = round.items.pop();
 
-    $('.item-image').attr('src', round.currentItem.url);
+    len = round.countItems;
+    for (i = 0; i < len; i++) {
+      $('<img class="item-image centered" src="'+round.items[i].url+'">').appendTo('#game-images');
+    }
+
+    app.bindItemImageEvents();
   },
 
   startTimer: function() {
