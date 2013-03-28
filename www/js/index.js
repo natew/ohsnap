@@ -19,12 +19,17 @@
 
 var timerInterval;
 
+// Phone unique identifier
+var deviceId = "0H5N4P";
+
 var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
   timings: { 1: 5, 2: 20, 3: 15 }
 };
+
+var currentRoundItems = [];
 
 var app = {
 
@@ -35,6 +40,7 @@ var app = {
     this.setupPanels();
     this.setupGender();
     this.setupCategories();
+    this.setupItemImages();
   },
 
   setupPanels: function() {
@@ -101,18 +107,30 @@ var app = {
   },
 
   setupGender: function() {
-    $('#male,#female').click(function() {
+    $('#male,#female').on('tap', function() {
       data.gender = $(this).attr('id');
+    });
+  },
+
+  setupItemImages: function() {
+    $('#game-images').on('tap', function() {
+      var itemsRemaining = currentRoundItems.length
+      if(itemsRemaining > 0) {
+          $('#item-image').attr('src', currentRoundItems.pop());
+      }
+      else {
+          $('#item-image').attr('src', '/img/happy-face.png');
+      }
     });
   },
 
   getRound: function(round) {
 
-    var data = [
+    var items = [
       {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
     ];
 
-    app.loadRound(1, data);
+    app.loadRound(round, items);
 
     if (false) {
       $.ajax({
@@ -139,21 +157,24 @@ var app = {
     }
   },
 
-  loadRound: function(round, data) {
-    app.loadImages(data);
+  loadRound: function(round, items) {
+    app.loadImages(items);
     app.startTimer(round);
     $('#panel-game').addClass('loaded');
   },
 
-  loadImages: function(data) {
-    var i,
-        len = data.length;
+  loadImages: function(items) {
+    var len = items.length;
 
-    $('#game-images').html('');
+    // for (var i = 0; i < len; i++) {
+    //   $('<img>').attr('src', items[i].url).appendTo('#game-images');
+    // }
 
-    for (i = 0; i < len; i++) {
-      $('<img>').attr('src', data[i].url).appendTo('#game-images');
+    for (var i in items) {
+      currentRoundItems.push(items[i].url);
     }
+
+    $('#item-image').attr('src', currentRoundItems.pop()); 
   },
 
   startTimer: function(round) {
@@ -199,6 +220,21 @@ var app = {
   }
 
 };
+
+// Contains data on a single image/item 
+function ItemResult(imageId, like) {
+  this.imageId = imageId;
+  this.like = like;
+  this.timeToDecide = timeToDecide;
+}
+
+// Contains data for a single round
+function RoundResult(gameId, roundId) {
+  this.gameId = gameId;
+  this.roundId = roundId;
+  this.itemResults = [];
+  this.deviceId = deviceId;
+}
 
 
 // $('body').swipeRight(function() {$('#intro').html('<li>right</li>');});
