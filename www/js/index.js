@@ -26,6 +26,7 @@ var data = {
   panelIndex: 0,
   gender: null,
   timings: { 1: 5, 2: 20, 3: 15 }, // seconds per round
+  roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
   rounds: [],
@@ -286,23 +287,23 @@ var app = {
   },
 
   startTimer: function() {
-    console.log('start timer');
-    var roundLength = data.timings[data.currentRound] * 1000;
+    data.roundCountdown = data.timings[data.currentRound] * 1000;
+    app.updateTimer(data.roundCountdown);
+    timerInterval = setTimeout(app.incrementTimer, 10);
+  },
 
-    app.updateTimer(roundLength);
+  incrementTimer: function() {
+    data.roundCountdown -= 10;
 
-    timerInterval = setInterval(function() {
-      roundLength -= 10;
-      app.updateTimer(roundLength);
-    }, 10);
+    if (data.roundCountdown <= 0) {
+      app.roundTimedOut();
+    } else {
+      app.updateTimer(data.roundCountdown);
+      setTimeout(app.incrementTimer, 10);
+    }
   },
 
   updateTimer: function(total) {
-    if (total <= 0) {
-      clearInterval(timerInterval);
-      app.roundTimedOut();
-    }
-
     var s = Math.floor(total / 1000) + "",
         ms = (total % 1000) + "";
 
