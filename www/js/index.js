@@ -19,29 +19,37 @@
 
 var timerInterval;
 
-// Phone unique identifier.  Must not contain a '#'
-var deviceId = "0H5N4P";
-
-var gameId = -1;
-
 var data = {
+  deviceId: "0H5N4P",
+  gameId: -1,
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 5, 2: 20, 3: 15 }
+  timings: { 1: 5, 2: 20, 3: 15 }, // seconds per round
+  currentRound: 0,
+  roundLoaded: false,
+  rounds: [],
+  totalRounds: 3
 };
 
-// Tracking current round state
-var currentRoundData = {
-  items: [],
-  countItems: 0,
-  countCompletedItems: 0,
-  countLiked: 0,
-  countDisliked: 0,
-  roundComplete: false,
-  roundResults: new RoundResult(),
-  currentItem: null
-}
+var Round = function(number) {
+  var self = this;
+  self.roundNumber = number;
+  self.items = [];
+  self.itemResults = [];
+  self.countItems = 0;
+  self.countCompletedItems = 0;
+  self.countLiked = 0;
+  self.countDisliked = 0;
+  self.roundComplete = false;
+  self.currentItem = null;
+};
+
+var ItemResult = function(like) {
+  this.imageId = '';
+  this.like = like;
+  this.timeToDecide = 0;
+};
 
 var app = {
 
@@ -52,6 +60,7 @@ var app = {
     this.setupPanels();
     this.setupGender();
     this.setupCategories();
+    this.setupStartButton();
     this.setupItemImages();
   },
 
@@ -109,14 +118,28 @@ var app = {
 
       $('#btn-start').toggleClass('disabled', !numSelected);
     });
+  },
 
+  setupStartButton: function() {
     $('#btn-start').one('tap', function() {
       var el = $(this);
       el.html('Loading...');
       el.addClass('btn-next');
-      currentRoundData.roundResults.roundId++;
-      app.getRound(currentRoundData.roundResults.roundId);
+
+      app.incrementRound();
+      app.loadRound();
+      app.startNextRound();
     });
+  },
+
+  incrementRound: function() {
+    data.currentRound++;
+    data.rounds[data.currentRound] = new Round(data.currentRound);
+    data.roundLoaded = false;
+  },
+
+  getCurrentRound: function() {
+    return data.rounds[data.currentRound];
   },
 
   setupGender: function() {
@@ -128,100 +151,143 @@ var app = {
   setupItemImages: function() {
     $('#game-images').on('swipeRight', function() {
       app.recordItemResult(true);
-      $('#love .count').html(++currentRoundData.countLiked);
-      $('#love').css('visibility', 'visible');
-      $('#nah').css('visibility', 'hidden'); 
     });
 
     $('#game-images').on('swipeLeft', function() {
       app.recordItemResult(false);
-      $('#nah .count').html(++currentRoundData.countDisliked);
-      $('#nah').css('visibility', 'visible');
-      $('#love').css('visibility', 'hidden');  
-    });  
+    });
   },
 
   recordItemResult: function(like) {
-    var itemsRemaining = currentRoundData.items.length
+    var round = app.getCurrentRound(),
+        itemsRemaining = round.items.length;
 
-    // Only do stuff if the round needs to be finished.
-    if (!currentRoundData.roundComplete) {
+    // Only do stuff if the round needs to be finished
+    if (!round.roundComplete) {
 
-      // Create a result object and add it to the round results array.
+      // Update sidebar
+      app.updateSidebar(round, like);
+
+      // Create a result object and add it to the round results array
       var itemResult = new ItemResult(like);
-      currentRoundData.roundResults.itemResults.push(itemResult);
+      round.itemResults.push(itemResult);
 
-      if(itemsRemaining > 0) {
-          currentRoundData.countCompletedItems++;
-          if (currentRoundData.countItems > 0) {
-            var percentDone = 
-              Math.round(currentRoundData.countCompletedItems * 100/currentRoundData.countItems);
+      // If we have more images
+      if (itemsRemaining > 0) {
+        round.countCompletedItems++;
 
-            $('#position').css('width', percentDone + '%');  
-          }
-          currentRoundData.currentItem = currentRoundData.items.pop();
-          $('#item-image').attr('src', currentRoundData.currentItem.url);
+        // Update percent done progress
+        if (round.countItems > 0) {
+          var percentDone = Math.round(round.countCompletedItems * 100 / round.countItems);
+          $('#position').css('width', percentDone + '%');
+        }
+
+        round.currentItem = round.items.pop();
+        $('#item-image').attr('src', round.currentItem.url);
       }
-      // When this is the last item.
+
+      // No more images
       else {
-          currentRoundData.countCompletedItems++;
-          currentRoundData.roundComplete = true;
-          $('#position').css('width', '100%');
-          $('#item-image').attr('src', 'img/happy-face.png');
+        $('#position').css('width', '100%');
+        $('#item-image').attr('src', 'img/happy-face.png');
+        round.countCompletedItems++;
+        round.roundComplete = true;
+        app.completeRound();
       }
     }
   },
 
-  getRound: function(round) {
-
-    var items = [
-      {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
-    ];
-
-    app.loadRound(round, items);
-
-    if (false) {
-      $.ajax({
-        dataType: 'JSONP',
-        type: 'GET',
-        url: 'http://ohsnap.elasticbeanstalk.com/recommendation/custId/1/resultSize/10',
-        success: function(data) {
-          console.log(data);
-        }
-      });
-    }
-
-    if (false) {
-      $.ajax({
-        type: 'POST',
-        url: 'http://ohsnap.elasticbeanstalk.com/start',
-        data: {
-          gender: data.gender,
-          categories: $('.toggles .active').pluck('id')
-        },
-        success: function(data) {
-        }
-      });
+  updateSidebar: function(round, like) {
+    if (like) {
+      $('#love .count').html(++round.countLiked);
+      app.showSidebar('love', true);
+      app.showSidebar('nah', false);
+    } else {
+      $('#nah .count').html(++round.countDisliked);
+      app.showSidebar('love', false);
+      app.showSidebar('nah', true);
     }
   },
 
-  loadRound: function(round, items) {
+  showSidebar: function(id, val) {
+    $('#' + id).css('visibility', val ? 'visible' : 'hidden');
+  },
+
+  roundTimedOut: function() {
+    round.roundComplete = true;
+    app.completeRound();
+  },
+
+  completeRound: function() {
+    console.log('complete round');
+    app.incrementRound();
+    app.resetRoundPanel();
+    app.loadRound();
+    app.showBetweenRoundPanel();
+  },
+
+  showBetweenRoundPanel: function() {
+    $('#end-of-round').addClass('shown');
+
+    var checkRoundLoaded;
+    setTimeout(function() {
+      checkRoundLoaded = setInterval(function() {
+        if (data.roundLoaded) {
+          clearInterval(checkRoundLoaded);
+          app.startNextRound();
+          $('#end-of-round').removeClass('shown');
+        }
+      }, 200);
+
+      // Safety if we don't ever get a response
+      setTimeout(function() {
+        if (!data.roundLoaded) {
+          // Timed out :(
+          clearInterval(checkRoundLoaded);
+          alert('timed out!');
+        }
+      }, 2000);
+    }, 4800);
+  },
+
+  startNextRound: function() {
+    app.startTimer();
+  },
+
+  resetRoundPanel: function() {
+    var round = app.getCurrentRound();
+    app.showSidebar('love', false);
+    app.showSidebar('nah', false);
+    $('#position').css('width', '0%');
+    $('#round-title').html('Round ' + round.roundNumber);
+    $('.count').html('0');
+  },
+
+  loadRound: function(callback) {
+    var roundNumber = app.getCurrentRound().roundNumber;
+    // Temp
+    var items = [{"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},{"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},{"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}];
+    data.roundLoaded = true;
+
     app.loadImages(items);
-    app.startTimer(round);
     $('#panel-game').addClass('loaded');
+
+    if (callback) callback.call();
   },
 
   loadImages: function(items) {
-    currentRoundData.countItems = items.length;
+    var round = app.getCurrentRound();
 
-    currentRoundData.items = items;
+    round.countItems = items.length;
+    round.items = items;
+    round.currentItem = round.items.pop();
 
-    currentRoundData.currentItem = currentRoundData.items.pop();
-    $('#item-image').attr('src', currentRoundData.currentItem.url); 
+    $('#item-image').attr('src', round.currentItem.url);
   },
 
-  startTimer: function(round) {
-    var roundLength = data.timings[round] * 1000;
+  startTimer: function() {
+    console.log('start timer');
+    var roundLength = data.timings[data.currentRound] * 1000;
 
     app.updateTimer(roundLength);
 
@@ -234,6 +300,7 @@ var app = {
   updateTimer: function(total) {
     if (total <= 0) {
       clearInterval(timerInterval);
+      app.roundTimedOut();
     }
 
     var s = Math.floor(total / 1000) + "",
@@ -264,21 +331,6 @@ var app = {
 
 };
 
-// Contains data on a single image/item 
-function ItemResult(like) {
-  this.imageId = '';
-  this.like = like;
-  this.timeToDecide = 0;
-}
-
-// Contains data for a single round
-function RoundResult() {
-  this.gameId = -1;
-  this.roundId = 0;
-  this.itemResults = [];
-  this.deviceId = deviceId;
-}
-
 
 // $('body').swipeRight(function() {$('#intro').html('<li>right</li>');});
 // $('body').swipeLeft(function() {$('#intro').html('<li>left</li>');});
@@ -286,3 +338,23 @@ function RoundResult() {
 // $('body').tap(function() {$('#intro').html('<li>tap</li>');});
 // $('body').doubleTap(function() {$('#intro').html('<li>double tap</li>');});
 // $('body').longTap(function() {$('#intro').html('long tap');});
+
+
+// $.ajax({
+//   dataType: 'JSONP',
+//   type: 'GET',
+//   url: 'http://ohsnap.elasticbeanstalk.com/recommendation/custId/1/resultSize/10',
+//   success: function(data) {
+//     console.log(data);
+//   }
+// });
+// $.ajax({
+//   type: 'POST',
+//   url: 'http://ohsnap.elasticbeanstalk.com/start',
+//   data: {
+//     gender: data.gender,
+//     categories: $('.toggles .active').pluck('id')
+//   },
+//   success: function(data) {
+//   }
+// });
