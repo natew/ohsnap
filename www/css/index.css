@@ -379,6 +379,7 @@ h4 {
   top: 180px;
   font-weight: bold;
   font-size: 16px;
+  z-index: 200000;
 }
 
 .sidebar span {
@@ -390,7 +391,7 @@ h4 {
 }
 
 #love {
-  visibility: hidden;
+  opacity: 0;
   right: -4px;
 }
 
@@ -399,7 +400,7 @@ h4 {
 }
 
 #nah {
-  visibility: hidden;
+  opacity: 0;
   left: -4px;
 }
 

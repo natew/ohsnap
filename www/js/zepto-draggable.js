@@ -73,12 +73,13 @@
 
     setPosition: function (e) {
       var pos = $.getPos(e);
-      var h = this.curEl.height();
+      // var h = this.curEl.height();
       var w = this.curEl.width();
       var offset = this.findOffset();
       this.pos = {
-        left: pos.x - w / offset,
-        top: pos.y - h / offset };
+        left: pos.x - w / offset
+        // , top: pos.y - h / offset
+      };
 
       e.preventDefault();
       e.stopPropagation();

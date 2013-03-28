@@ -142,27 +142,43 @@ var app = {
   },
 
   setupItemImages: function() {
-    // $('#item-image').on('touchstart', app.imageTouchStart);
-    // $('#item-image').on('touchmove', app.imageTouchMove);
-    // $('#item-image').on('touchend', app.imageTouchEnd);
-
     var lastPos = [0, 0],
         curPos = [0, 0],
         wait = false,
         sampleRate = 10,
-        moverTimeout;
+        moverTimeout,
+        love = $('#love'),
+        nah = $('#nah'),
+        img, imgMid, pastHalf, opacity,
+        opacityMultiplier = 2;
 
     $('.item-image')
       .draggable({
         start: function() {
+          var imgWidth = $('.item-image').width();
+
+          data.screenWidth = $(window).width();
+          data.screenHalf = data.screenWidth / 2;
+          data.imgHalf = imgWidth / 2;
+
           clearTimeout(moverTimeout);
         },
 
         drag: function(e) {
-          var self = this;
+          img = this[0],
+          imgMid = img.offsetLeft + data.imgHalf,
+          pastHalf = imgMid > data.screenHalf;
+
+          if (pastHalf) {
+            opacity = 1 - ((data.screenWidth - imgMid) / data.screenHalf);
+            love.css('opacity', opacity * opacityMultiplier);
+          } else {
+            opacity = (data.screenHalf - imgMid) / data.screenHalf;
+            nah.css('opacity', opacity * opacityMultiplier);
+          }
 
           if (!lastPos) {
-            lastPos = offsets(self);
+            lastPos = offsets(img);
           }
           else {
             if (!wait) {
@@ -172,16 +188,14 @@ var app = {
 
                 // Store values
                 lastPos = curPos;
-                curPos = offsets(self);
-
-                console.log(lastPos, curPos);
+                curPos = offsets(img);
               }, sampleRate);
             }
           }
 
 
           function offsets(obj) {
-            return [obj[0].offsetTop, obj[0].offsetLeft];
+            return [obj.offsetTop, obj.offsetLeft];
           }
         },
 
@@ -224,18 +238,6 @@ var app = {
     $('#game-images').on('swipeLeft', function() {
       app.recordItemResult(false);
     });
-  },
-
-  imageTouchStart: function(e) {
-    console.log(e)
-  },
-
-  imageTouchMove: function(e) {
-    console.log(e)
-  },
-
-  imageTouchEnd: function(e) {
-    console.log(e)
   },
 
   recordItemResult: function(like) {
