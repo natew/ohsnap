@@ -312,6 +312,7 @@ h2 {
 }
 
 #love {
+  visibility: hidden;
   right: -4px;
 }
 
@@ -320,6 +321,7 @@ h2 {
 }
 
 #nah {
+  visibility: hidden;
   left: -4px;
 }
 

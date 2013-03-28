@@ -128,12 +128,16 @@ var app = {
   setupItemImages: function() {
     $('#game-images').on('swipeRight', function() {
       app.recordItemResult(true);
-      $('#love .count').html(++currentRoundData.countLiked); 
+      $('#love .count').html(++currentRoundData.countLiked);
+      $('#love').css('visibility', 'visible');
+      $('#nah').css('visibility', 'hidden'); 
     });
 
     $('#game-images').on('swipeLeft', function() {
       app.recordItemResult(false);
-      $('#nah .count').html(++currentRoundData.countDisliked); 
+      $('#nah .count').html(++currentRoundData.countDisliked);
+      $('#nah').css('visibility', 'visible');
+      $('#love').css('visibility', 'hidden');  
     });  
   },
 
