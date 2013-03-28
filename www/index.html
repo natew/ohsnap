@@ -29,7 +29,7 @@
       <div class="app">
         
         <div id="panels">
-          <div id="panel-home" class="panel menu-panel on">
+          <!-- <div id="panel-home" class="panel menu-panel on">
             <div class="center">
               <a id="get-snappin" class="button btn-next btn-alt icon-before">Get Snappin'</a>
               <a id="stats" class="button disabled">See My Likes</a>
@@ -43,9 +43,9 @@
               <a id="male" class="button btn-next icon-before">Guy</a>
               <a id="female" class="button btn-next icon-before">Gal</a>
             </div>
-          </div>
+          </div> -->
 
-          <div id="panel-category" class="panel menu-panel">
+          <div id="panel-category" class="panel menu-panel on">
             <h1>I am looking for...</h1>
             <h2>Choose up to 3</h2>
 
@@ -76,7 +76,7 @@
             </div>
 
             <div id="game-images">
-              <img id="item-image" />
+              <img class="item-image centered" />
             </div>
 
             <div id="love" class="sidebar">
@@ -122,9 +122,13 @@
       <script type="text/javascript" src="cordova-2.5.0.js"></script>
       <script type="text/javascript" src="js/zepto.js"></script>
       <script type="text/javascript" src="js/zepto-touch.js"></script>
+      <script type="text/javascript" src="js/zepto-draggable.js"></script>
       <script type="text/javascript" src="js/index.js"></script>
       <script type="text/javascript">
           app.initialize();
+
+          $('#shoes').trigger('tap');
+          $('#btn-start').trigger('tap');
       </script>
   </body>
 </html>

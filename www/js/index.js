@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 2, 2: 2, 3: 15 }, // seconds per round
+  timings: { 1: 20000, 2: 2, 3: 15 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -142,6 +142,20 @@ var app = {
   },
 
   setupItemImages: function() {
+    // $('#item-image').on('touchstart', app.imageTouchStart);
+    // $('#item-image').on('touchmove', app.imageTouchMove);
+    // $('#item-image').on('touchend', app.imageTouchEnd);
+    
+    $('.item-image')
+      .draggable()
+      .on('draggable:start', function() {
+        $(this).addClass('is-dragging');
+      })
+      .on('draggable:end', function() {
+        $(this).removeClass('is-dragging centered');
+      });
+
+
     $('#game-images').on('swipeRight', function() {
       app.recordItemResult(true);
     });
@@ -149,6 +163,18 @@ var app = {
     $('#game-images').on('swipeLeft', function() {
       app.recordItemResult(false);
     });
+  },
+
+  imageTouchStart: function(e) {
+    console.log(e)
+  },
+
+  imageTouchMove: function(e) {
+    console.log(e)
+  },
+
+  imageTouchEnd: function(e) {
+    console.log(e)
   },
 
   recordItemResult: function(like) {
@@ -176,13 +202,12 @@ var app = {
         }
 
         round.currentItem = round.items.pop();
-        $('#item-image').attr('src', round.currentItem.url);
+        $('.item-image').attr('src', round.currentItem.url);
       }
 
       // No more images
       else {
         $('#position').css('width', '100%');
-        $('#item-image').attr('src', 'img/happy-face.png');
         round.countCompletedItems++;
         round.roundComplete = true;
         app.completeRound();
@@ -277,7 +302,7 @@ var app = {
     round.items = items;
     round.currentItem = round.items.pop();
 
-    $('#item-image').attr('src', round.currentItem.url);
+    $('.item-image').attr('src', round.currentItem.url);
   },
 
   startTimer: function() {

@@ -238,6 +238,8 @@ h4 {
   background-repeat: no-repeat;
   background-size: 70% auto;
   border: 4px solid transparent;
+  -webkit-transition: all 100ms;
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .toggles a.active {
@@ -347,15 +349,22 @@ h4 {
   -webkit-transition: all 100ms linear;
 }
 
-#game-images img {
+.item-image {
   position: absolute;
   top: 180px;
   left: 50%;
   width: 220px;
   height: auto;
-  margin: 0 0 0 -110px;
   border: 6px solid #5f95df;
   -webkit-border-radius: 4px;
+}
+
+.item-image.centered {
+  margin: 0 0 0 -110px;
+}
+
+.item-image.is-dragging {
+  margin: 0;
 }
 
 .sidebar {
