@@ -19,8 +19,10 @@
 
 var timerInterval;
 
-// Phone unique identifier
+// Phone unique identifier.  Must not contain a '#'
 var deviceId = "0H5N4P";
+
+var gameId = -1;
 
 var data = {
   panels: [],
@@ -29,7 +31,17 @@ var data = {
   timings: { 1: 5, 2: 20, 3: 15 }
 };
 
-var currentRoundItems = [];
+// Tracking current round state
+var currentRoundData = {
+  items: [],
+  countItems: 0,
+  countCompletedItems: 0,
+  countLiked: 0,
+  countDisliked: 0,
+  roundComplete: false,
+  roundResults: new RoundResult(),
+  currentItem: null
+}
 
 var app = {
 
@@ -102,7 +114,8 @@ var app = {
       var el = $(this);
       el.html('Loading...');
       el.addClass('btn-next');
-      app.getRound(1);
+      currentRoundData.roundResults.roundId++;
+      app.getRound(currentRoundData.roundResults.roundId);
     });
   },
 
@@ -113,15 +126,46 @@ var app = {
   },
 
   setupItemImages: function() {
-    $('#game-images').on('tap', function() {
-      var itemsRemaining = currentRoundItems.length
+    $('#game-images').on('swipeRight', function() {
+      app.recordItemResult(true);
+      $('#love .count').html(++currentRoundData.countLiked); 
+    });
+
+    $('#game-images').on('swipeLeft', function() {
+      app.recordItemResult(false);
+      $('#nah .count').html(++currentRoundData.countDisliked); 
+    });  
+  },
+
+  recordItemResult: function(like) {
+    var itemsRemaining = currentRoundData.items.length
+
+    // Only do stuff if the round needs to be finished.
+    if (!currentRoundData.roundComplete) {
+
+      // Create a result object and add it to the round results array.
+      var itemResult = new ItemResult(like);
+      currentRoundData.roundResults.itemResults.push(itemResult);
+
       if(itemsRemaining > 0) {
-          $('#item-image').attr('src', currentRoundItems.pop());
+          currentRoundData.countCompletedItems++;
+          if (currentRoundData.countItems > 0) {
+            var percentDone = 
+              Math.round(currentRoundData.countCompletedItems * 100/currentRoundData.countItems);
+
+            $('#position').css('width', percentDone + '%');  
+          }
+          currentRoundData.currentItem = currentRoundData.items.pop();
+          $('#item-image').attr('src', currentRoundData.currentItem.url);
       }
+      // When this is the last item.
       else {
+          currentRoundData.countCompletedItems++;
+          currentRoundData.roundComplete = true;
+          $('#position').css('width', '100%');
           $('#item-image').attr('src', 'img/happy-face.png');
       }
-    });
+    }
   },
 
   getRound: function(round) {
@@ -164,17 +208,12 @@ var app = {
   },
 
   loadImages: function(items) {
-    var len = items.length;
+    currentRoundData.countItems = items.length;
 
-    // for (var i = 0; i < len; i++) {
-    //   $('<img>').attr('src', items[i].url).appendTo('#game-images');
-    // }
+    currentRoundData.items = items;
 
-    for (var i in items) {
-      currentRoundItems.push(items[i].url);
-    }
-
-    $('#item-image').attr('src', currentRoundItems.pop()); 
+    currentRoundData.currentItem = currentRoundData.items.pop();
+    $('#item-image').attr('src', currentRoundData.currentItem.url); 
   },
 
   startTimer: function(round) {
@@ -222,16 +261,16 @@ var app = {
 };
 
 // Contains data on a single image/item 
-function ItemResult(imageId, like) {
-  this.imageId = imageId;
+function ItemResult(like) {
+  this.imageId = '';
   this.like = like;
-  this.timeToDecide = timeToDecide;
+  this.timeToDecide = 0;
 }
 
 // Contains data for a single round
-function RoundResult(gameId, roundId) {
-  this.gameId = gameId;
-  this.roundId = roundId;
+function RoundResult() {
+  this.gameId = -1;
+  this.roundId = 0;
   this.itemResults = [];
   this.deviceId = deviceId;
 }
