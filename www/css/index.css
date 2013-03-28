@@ -183,7 +183,7 @@ h2 {
   display: block;
   width: 22px;
   height: 20px;
-  background: #ff126a url(/img/check.png) no-repeat center 25%;
+  background: #ff126a url(../img/check.png) no-repeat center 25%;
   background-size: 80% auto;
   position: absolute;
   top: 0;
@@ -192,27 +192,27 @@ h2 {
 }
 
 #shoes {
-  background-image: url(../../../img/icon-shoe.png);
+  background-image: url(../img/icon-shoe.png);
 }
 
 #clothing {
-  background-image: url(../../../img/icon-shirt.png);
+  background-image: url(../img/icon-shirt.png);
 }
 
 #accessories {
-  background-image: url(../../../img/icon-tie.png);
+  background-image: url(../img/icon-tie.png);
 }
 
 #bags {
-  background-image: url(../../../img/icon-bag.png);
+  background-image: url(../img/icon-bag.png);
 }
 
 #home {
-  background-image: url(../../../img/icon-home.png);
+  background-image: url(../img/icon-home.png);
 }
 
 #beauty {
-  background-image: url(../../../img/icon-lipstick.png);
+  background-image: url(../img/icon-lipstick.png);
 }
 
 #panel-game {
@@ -307,7 +307,7 @@ h2 {
   display: block;
   margin: 8px 12px 0;
   padding: 32px 0 0;
-  background: url(../../../img/icon-heart.png) no-repeat 0 0;
+  background: url(../img/icon-heart.png) no-repeat 0 0;
   background-size: 100% auto;
 }
 
@@ -324,7 +324,7 @@ h2 {
 }
 
 #nah span {
-  background-image: url(../../../img/icon-trash.png);
+  background-image: url(../img/icon-trash.png);
 }
 
 /* Landscape layout (with min-width) */
