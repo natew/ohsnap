@@ -122,6 +122,8 @@ var app = {
   setupGender: function() {
     $('#male,#female').on('tap', function() {
       data.gender = $(this).attr('id');
+      var snd = new Audio('audio/Realistic_Punch.mp3');
+      snd.play();
     });
   },
 
