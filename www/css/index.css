@@ -353,10 +353,11 @@ h4 {
   position: absolute;
   top: 180px;
   left: 50%;
-  width: 220px;
+  width: 223px;
   height: auto;
   border: 6px solid #5f95df;
   -webkit-border-radius: 4px;
+  -webkit-transform: translate3d(0,0,0);
 }
 
 .item-image.centered {

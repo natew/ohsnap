@@ -38,7 +38,7 @@
         offset = this.curEl.offset();
         this.curEl.data(offset);
         this.setRevert(offset);
-        this.setZIndex(1);
+        this.setZIndex(100);
         this.opts.start && this.opts.start.call(this.ctx, this.curEl);
         this.curEl.trigger('draggable:start', [e, this.curEl]);
 
@@ -252,33 +252,30 @@
 // The following code is heavily inspired by jQuery's $.fn.data()
 
 ;(function($) {
-  var data = {}, dataAttr = $.fn.data, camelize = function(name) { return name; },
+  var data = {}, dataAttr = $.fn.data,
     exp = $.expando = 'Zepto' + (+new Date())
 
   // Get value from node:
   // 1. first try key as given,
-  // 2. then try camelized key,
-  // 3. fall back to reading "data-*" attribute.
+  // 2. fall back to reading "data-*" attribute.
   function getData(node, name) {
     var id = node[exp], store = id && data[id]
     if (name === undefined) return store || setData(node)
     else {
       if (store) {
         if (name in store) return store[name]
-        var camelName = camelize(name)
-        if (camelName in store) return store[camelName]
       }
       return dataAttr.call($(node), name)
     }
   }
 
-  // Store value under camelized key on node
+  // Store value under key on node
   function setData(node, name, value) {
     var id = node[exp] || (node[exp] = ++$.uuid),
       store = data[id] || (data[id] = attributeData(node));
     if (name !== undefined) {
       console.log()
-      store[camelize(name)] = value
+      store[name] = value
     }
     return store;
   }
@@ -288,7 +285,7 @@
     var store = {}
     $.each(node.attributes, function(i, attr){
       if (attr.name.indexOf('data-') === 0)
-        store[camelize(attr.name.replace('data-', ''))] = attr.value
+        store[attr.name.replace('data-', '')] = attr.value
     })
     return store
   }
@@ -310,7 +307,7 @@
     if (typeof names == 'string') names = names.split(/\s+/)
     return this.each(function(){
       var id = this[exp], store = id && data[id]
-      if (store) $.each(names, function(){ delete store[camelize(this)] })
+      if (store) $.each(names, function(){ delete store[this] })
     })
   }
 })(Zepto);

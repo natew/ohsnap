@@ -145,9 +145,70 @@ var app = {
     // $('#item-image').on('touchstart', app.imageTouchStart);
     // $('#item-image').on('touchmove', app.imageTouchMove);
     // $('#item-image').on('touchend', app.imageTouchEnd);
-    
+
+    var lastPos = [0, 0],
+        curPos = [0, 0],
+        wait = false,
+        sampleRate = 10,
+        moverTimeout;
+
     $('.item-image')
-      .draggable()
+      .draggable({
+        start: function() {
+          clearTimeout(moverTimeout);
+        },
+
+        drag: function(e) {
+          var self = this;
+
+          if (!lastPos) {
+            lastPos = offsets(self);
+          }
+          else {
+            if (!wait) {
+              wait = true;
+              setTimeout(function() {
+                wait = false;
+
+                // Store values
+                lastPos = curPos;
+                curPos = offsets(self);
+
+                console.log(lastPos, curPos);
+              }, sampleRate);
+            }
+          }
+
+
+          function offsets(obj) {
+            return [obj[0].offsetTop, obj[0].offsetLeft];
+          }
+        },
+
+        stop: function() {
+          var img = this[0],
+              zImg = $('.item-image'),
+              difference = [ curPos[0] - lastPos[0], curPos[1] - lastPos[1] ],
+              curTop = img.offsetTop,
+              curLeft = img.offsetLeft;
+
+          console.log(img, 'diff', difference, 'top, left', curTop, curLeft);
+
+          moverTimeout = setTimeout(mover, sampleRate);
+
+          function mover() {
+            curTop += difference[0];
+            curLeft += difference[1];
+
+            zImg.css({
+              top: curTop,
+              left: curLeft
+            });
+
+            moverTimeout = setTimeout(mover, sampleRate);
+          }
+        }
+      })
       .on('draggable:start', function() {
         $(this).addClass('is-dragging');
       })
