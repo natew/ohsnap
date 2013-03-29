@@ -365,11 +365,12 @@ var app = {
             clearInterval(checkRoundLoaded);
             app.startNextRound();
             $('#end-of-round').removeClass('shown');
-            if (data.currentRound == data.totalRounds) {
-              data.allRoundsCompleted = true;
-            }
           }
         }, 200);
+
+        if (data.currentRound == data.totalRounds) {
+              data.allRoundsCompleted = true;
+        }
 
         // Safety if we don't ever get a response
         setTimeout(function() {
