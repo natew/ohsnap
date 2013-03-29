@@ -275,27 +275,27 @@ h4 {
   -webkit-border-bottom-left-radius: 4px;
 }
 
-#shoes {
+#SHOES {
   background-image: url(../img/icon-shoe.png);
 }
 
-#clothing {
+#CLOTHING {
   background-image: url(../img/icon-shirt.png);
 }
 
-#accessories {
+#ACCESSORIES {
   background-image: url(../img/icon-tie.png);
 }
 
-#bags {
+#BAGS {
   background-image: url(../img/icon-bag.png);
 }
 
-#home {
+#HOME {
   background-image: url(../img/icon-home.png);
 }
 
-#beauty {
+#BEAUTY {
   background-image: url(../img/icon-lipstick.png);
 }
 

@@ -39,6 +39,7 @@ var data = {
   reCenterImage: false,
   noScroll: true,
   cdStart: 2,
+  itemCountToRequest: {1: 9, 2: 8, 3:6}, // How many items to request per round
   cdTimer: $('#countdown'),
   cdPanel: $('#panel-countdown'),
   numSelected: 0
