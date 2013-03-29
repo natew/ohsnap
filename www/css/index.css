@@ -458,7 +458,7 @@ h4 {
 }
 
 #round-stats h4 {
-  margin: 0 0 26px 0;
+  margin: 0 0 22px 0;
 }
 
 #end-of-round.shown {
@@ -473,7 +473,7 @@ h4 {
   padding: 20px 0;
   margin: 0;
   text-align: center;
-  line-height: 2em;
+  line-height: 1.8em;
   color: #5f95df;
   font-size: 22px;
 }

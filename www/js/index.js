@@ -476,7 +476,7 @@ var app = {
         totalTime += itemResults[i].timeToDecide;
       }
       rval = totalTime/(1000 * itemResults.length);
-      rval = (rval.toFixed(2) * 100) / 100;  
+      rval = (rval.toFixed(1) * 100) / 100;  
     }
     return rval;
   },
