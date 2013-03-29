@@ -17,7 +17,7 @@
  * under the License.
  */
 
-var timerInterval, moverTimeout;
+var timerInterval, moverTimeout, countdownInterval;
 
 var data = {
   deviceId: "0H5N4P",
@@ -39,6 +39,10 @@ var data = {
   reCenterImage: false,
   noScroll: true
   itemCountToRequest: {1: 10, 2: 8, 3:6} // How many items to request per round
+  noScroll: true,
+  cdStart: 3,
+  cdTimer: $('#countdown'),
+  cdPanel: $('#panel-countdown')
 };
 
 var Round = function(number) {
@@ -75,7 +79,6 @@ var app = {
     app.setupCategories();
     app.setupStartButton();
     app.setupDoneButton();
-    app.showBadges();
   },
 
   resetGame: function() {
@@ -93,6 +96,7 @@ var app = {
     $('#item-image').remove();
     $('#round-3').removeClass('current');
     $('#round-1').addClass('current').after($('#bar').remove());
+    app.setupCategories();
     app.resetRoundPanel();
   },
 
@@ -249,7 +253,7 @@ var app = {
             return false;
           }
 
-          step = direction * Math.max( Math.abs(difference), 35);
+          step = direction * Math.max( Math.abs(difference), 50);
           moverTimeout = setTimeout(mover, sampleRate);
 
           function mover() {
@@ -376,18 +380,24 @@ var app = {
         app.resetRoundPanel();
         app.loadRound();
         app.showBetweenRoundPanel();
+        app.delayedStartNextRound();
       }
       else {
         // We need to set the round loaded variable
         // to false since we've already gone through
         // our last round.
         data.roundLoaded = false;
-        app.showBadges();
+        app.showBetweenRoundPanel();
+
+        setTimeout(function() {
+          app.showBadges();
+        }, data.betweenPanelLength);
       }
     }, 500);
   },
 
   showBadges: function() {
+    $('#end-of-round').removeClass('shown');
     $('#badges').addClass('on');
 
     var i = 0,
@@ -453,7 +463,9 @@ var app = {
     $('#end-of-round').addClass('shown');
     app.chooseRandomSaying();
     app.updateRoundCounter();
+  },
 
+  delayedStartNextRound: function() {
     var checkRoundLoaded;
     setTimeout(function() {
       checkRoundLoaded = setInterval(function() {
@@ -467,7 +479,7 @@ var app = {
       // Safety if we don't ever get a response
       setTimeout(function() {
         if (!data.roundLoaded) {
-          // Timed out :(
+          console.log('Timed out!');
           clearInterval(checkRoundLoaded);
         }
       }, 2000);
@@ -491,7 +503,7 @@ var app = {
           randomSaying = sayingsWhileYouWait[randomIndex];
 
       sayings.html(randomSaying);
-    }, 700);
+    }, 1500);
 
     setTimeout(function() {
       clearInterval(sayingInterval);
@@ -499,8 +511,29 @@ var app = {
   },
 
   startNextRound: function() {
-    data.itemTimeStarted = new Date().getTime();
-    app.startTimer();
+    $('#start-round-title').html('Round ' + data.currentRound);
+    data.cdPanel.addClass('shown').removeClass('off');
+    data.cdStart = 3;
+    data.cdTimer.html(data.cdStart);
+    app.doCountdown();
+    countdownInterval = setInterval(app.doCountdown, 1000);
+  },
+
+  doCountdown: function() {
+    data.cdTimer.html(data.cdStart--);
+    if (!data.cdStart) {
+      clearInterval(countdownInterval);
+
+      setTimeout(function() {
+        data.cdTimer.html('START SWIPING!');
+
+        setTimeout(function() {
+          data.cdPanel.addClass('off').removeClass('shown');
+          data.itemTimeStarted = new Date().getTime();
+          app.startTimer();
+        }, 500)
+      }, 1000);
+    }
   },
 
   resetRoundPanel: function() {
@@ -509,12 +542,13 @@ var app = {
     app.showSidebar('nah', false);
     $('#position').css('width', '0%');
     $('.count').html('0');
+    $('#panel-game').removeClass('loaded');
 
     var roundNum = round ? round.roundNumber : 1;
     $('#round-title').html('Round ' + roundNum);
   },
 
-  loadRound: function(callback) {
+  loadRound: function() {
     var roundNumber = app.getCurrentRound().roundNumber;
 
     if (roundNumber == 1) {
@@ -533,8 +567,6 @@ var app = {
 
     app.loadImages(items);
     $('#panel-game').addClass('loaded');
-
-    if (callback) callback.call();
   },
 
   getInitialRoundData: function() {
