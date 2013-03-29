@@ -155,6 +155,12 @@ var app = {
       app.incrementRound();
       app.loadRound();
       app.startNextRound();
+      try {
+        data.deviceId = device.uuid;
+      }
+      catch (err) {
+        console.log(err.message);
+      }
     });
   },
 
@@ -435,12 +441,13 @@ var app = {
   chooseRandomSaying: function() {
     var sayings = $('#sayings-from-the-soul'),
         sayingsWhileYouWait = [
-      'Proxying getsticulation request...', 
-      'Forming opinions of grandeur...',
-      'Fueling baboons for eradication...',
-      'Proxying getsticulation request...', 
-      'Forming opinions of grandeur...',
-      'Fueling baboons for eradication...'
+          'Proxying getsticulation request...', 
+          'Breaching the primary pressure boundry...',
+          'Pressurized ejection commencing...',
+          'Experiencing rapid oxidation...',
+          'Configuring breeding algorithm...',
+          'Relocating to the lower plemun...',
+          'Fuel ballooning in progress...'
     ];
 
     var sayingInterval = setInterval(function() {
