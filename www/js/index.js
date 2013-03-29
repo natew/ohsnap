@@ -161,7 +161,7 @@ var app = {
 
   setupGender: function() {
     $('#male,#female').on('tap', function() {
-      data.gender = $(this).attr('id');
+      data.gender = $(this).attr('value');
     });
   },
 
@@ -394,7 +394,6 @@ var app = {
 
     var randomIndex = Math.floor(Math.random() * (sayingsWhileYouWait.length));
 
-    console.log(randomIndex);
     var randomSaying = sayingsWhileYouWait[randomIndex];
 
     $('#sayings-from-the-soul').html(randomSaying);
