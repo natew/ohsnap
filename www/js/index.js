@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 1000, 2: 15, 3: 12 }, // seconds per round
+  timings: { 1: 2, 2: 405, 3: 12 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -220,21 +220,21 @@ var app = {
               direction = difference > 0 ? 1 : -1,
               curLeft = img.offsetLeft;
 
+          // far enough right
           if (curLeft > data.rightThreshold) {
-            // far enough right
             direction = 1;
           }
+          // far enough left
           else if (curLeft < data.leftThreshold) {
-            // far enough left
             direction = -1;
           }
+          // not far enough
           else {
-            // not far enough
             data.reCenterImage = true;
             return false;
           }
 
-          step = direction * Math.max( Math.abs(difference), 10);
+          step = direction * Math.max( Math.abs(difference), 30);
           console.log(step)
           moverTimeout = setTimeout(mover, sampleRate);
 

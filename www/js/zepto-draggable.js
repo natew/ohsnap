@@ -56,9 +56,10 @@
         e.el = this.curEl;
         this.setZIndex(-1);
         this.opts.stop && this.opts.stop.call(this.ctx, this.curEl);
-        this.curEl.trigger('draggable:end', [e, this.curEl]);
 
         redraw();
+
+        this.curEl.trigger('draggable:end', [e, this.curEl]);
         draggable = null;
       }
 
