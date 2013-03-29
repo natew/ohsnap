@@ -606,8 +606,10 @@ var app = {
     data.roundCountdown -= 10;
 
     if (data.roundCountdown < 10) {
+      clearInterval(timerInterval);
       $('#timer').html('00:000');
-      app.roundTimedOut();
+      if (!round.roundComplete)
+        app.roundTimedOut();
     } else {
       app.updateTimer(data.roundCountdown);
       timerInterval = setTimeout(app.incrementTimer, 10);
