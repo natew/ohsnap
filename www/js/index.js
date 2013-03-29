@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 2, 2: 405, 3: 12 }, // seconds per round
+  timings: { 1: 20, 2: 405, 3: 12 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -237,14 +237,12 @@ var app = {
           }
 
           step = direction * Math.max( Math.abs(difference), 30);
-          console.log(step)
           moverTimeout = setTimeout(mover, sampleRate);
 
           function mover() {
             var itemTimeEnded;
 
             curLeft += step;
-            console.log(curLeft);
 
             if (curLeft > data.screenWidth) {
               zImg.remove();
@@ -273,12 +271,10 @@ var app = {
         $(this).removeClass('is-dragging centered');
 
         if (data.reCenterImage) {
-          console.log('recenter');
           var img = $(this);
           setTimeout(function() {
             img.css('left', '').removeAttr('style').addClass('centered');
           })
-          console.log(img);
           data.reCenterImage = false;
         }
       });
