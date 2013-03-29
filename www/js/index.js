@@ -33,7 +33,7 @@ var data = {
   totalRounds: 3,
   allRoundsCompleted: false,
   appHeight: $(window).height(),
-  betweenPanelLength: 3000,
+  betweenPanelLength: 4000,
   sidebarOpacityMultiplier: 2,
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false
@@ -66,13 +66,13 @@ var app = {
 
   // Application Constructor
   initialize: function() {
-    this.bindEvents();
-    this.setupButtons();
-    this.setupPanels();
-    this.setupGender();
-    this.setupCategories();
-    this.setupStartButton();
-    this.setupDoneButton();
+    app.bindEvents();
+    app.setupButtons();
+    app.setupPanels();
+    app.setupGender();
+    app.setupCategories();
+    app.setupStartButton();
+    app.setupDoneButton();
   },
 
   resetGame: function() {
@@ -86,6 +86,7 @@ var app = {
     $('#panel-home').addClass('on');
     $('.toggles a').removeClass('active');
     $('#btn-start').html('Start!');
+    $('#item-image').remove();
     app.resetRoundPanel();
   },
 
@@ -156,7 +157,7 @@ var app = {
   },
 
   setupDoneButton: function() {
-    $('#im-done').on('tap', function() {
+    $('#im-done, #final-back').on('tap', function() {
       app.resetGame();
     });
   },
@@ -362,16 +363,22 @@ var app = {
         app.incrementRound();
         app.resetRoundPanel();
         app.loadRound();
+        app.showBetweenRoundPanel();
       }
       else {
         // We need to set the round loaded variable
         // to false since we've already gone through
         // our last round.
         data.roundLoaded = false;
+        app.showFinalGameScreen();
+        $('body').addClass('allowOverflow');
       }
-
-      app.showBetweenRoundPanel();
     }, 500);
+  },
+
+  showFinalGameScreen: function() {
+    $('#final-screen').addClass('on');
+    $('')
   },
 
   updateRoundPanel: function() {
@@ -402,48 +409,49 @@ var app = {
   showBetweenRoundPanel: function() {
     $('#end-of-round').addClass('shown');
     app.chooseRandomSaying();
+    app.updateRoundCounter();
 
-    if (data.currentRound <= data.totalRounds) {
-      app.updateRoundCounter();
-
-      var checkRoundLoaded;
-      setTimeout(function() {
-        checkRoundLoaded = setInterval(function() {
-          if (data.roundLoaded) {
-            clearInterval(checkRoundLoaded);
-            app.startNextRound();
-            $('#end-of-round').removeClass('shown');
-          }
-        }, 200);
-
-        if (data.currentRound == data.totalRounds) {
-              data.allRoundsCompleted = true;
+    var checkRoundLoaded;
+    setTimeout(function() {
+      checkRoundLoaded = setInterval(function() {
+        if (data.roundLoaded) {
+          clearInterval(checkRoundLoaded);
+          app.startNextRound();
+          $('#end-of-round').removeClass('shown');
         }
+      }, 200);
 
-        // Safety if we don't ever get a response
-        setTimeout(function() {
-          if (!data.roundLoaded && !data.allRoundsCompleted) {
-            // Timed out :(
-            clearInterval(checkRoundLoaded);
-          }
-        }, 2000);
-      }, data.betweenPanelLength - 200);
-    }
+      // Safety if we don't ever get a response
+      setTimeout(function() {
+        if (!data.roundLoaded) {
+          // Timed out :(
+          clearInterval(checkRoundLoaded);
+        }
+      }, 2000);
+    }, data.betweenPanelLength - 200);
   },
 
   chooseRandomSaying: function() {
-    var sayingsWhileYouWait = [ 'Proxying getsticulation request...', 
-                            'Forming opinions of grandeur...',
-                            'Fueling baboons for eradication...',
-                            'Proxying getsticulation request...', 
-                            'Forming opinions of grandeur...',
-                            'Fueling baboons for eradication...'];
+    var sayings = $('#sayings-from-the-soul'),
+        sayingsWhileYouWait = [
+      'Proxying getsticulation request...', 
+      'Forming opinions of grandeur...',
+      'Fueling baboons for eradication...',
+      'Proxying getsticulation request...', 
+      'Forming opinions of grandeur...',
+      'Fueling baboons for eradication...'
+    ];
 
-    var randomIndex = Math.floor(Math.random() * (sayingsWhileYouWait.length));
+    var sayingInterval = setInterval(function() {
+      var randomIndex = Math.floor(Math.random() * (sayingsWhileYouWait.length)),
+          randomSaying = sayingsWhileYouWait[randomIndex];
 
-    var randomSaying = sayingsWhileYouWait[randomIndex];
+      sayings.html(randomSaying);
+    }, 500);
 
-    $('#sayings-from-the-soul').html(randomSaying);
+    setTimeout(function() {
+      clearInterval(sayingInterval);
+    }, data.betweenPanelLength)
   },
 
   startNextRound: function() {
@@ -540,7 +548,9 @@ var app = {
   bindEvents: function() {
     $(document)
       .on('deviceready', this.onDeviceReady)
-      .on('touchmove', function(e) { e.preventDefault(); });
+      .on('touchmove', function(e) {
+        if (data.noScroll) e.preventDefault();
+      });
   },
 
   // deviceready Event Handler
