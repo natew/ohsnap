@@ -38,6 +38,7 @@ var data = {
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false,
   noScroll: true
+  itemCountToRequest: {1: 10, 2: 8, 3:6} // How many items to request per round
 };
 
 var Round = function(number) {
@@ -515,14 +516,18 @@ var app = {
 
   loadRound: function(callback) {
     var roundNumber = app.getCurrentRound().roundNumber;
+
+    if (roundNumber == 1) {
+
+    }    
     // Temp
-    var items = [
-      {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},
-      {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},
-      {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},
-      {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},
-      {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
-    ];
+    // var items = [
+    //   {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},
+    //   {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},
+    //   {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},
+    //   {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},
+    //   {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
+    // ];
 
     data.roundLoaded = true;
 
@@ -530,6 +535,20 @@ var app = {
     $('#panel-game').addClass('loaded');
 
     if (callback) callback.call();
+  },
+
+  getInitialRoundData: function() {
+    $.ajax({
+      dataType: 'jsonp',
+      type: 'get',
+      url: 'http://ohsnap.elasticbeanstalk.com/game/startG?' + app.generateParamsStringForInitialRoundRequest(),
+      success: function(data) {
+        console.log(data);
+      },
+      error: function(xhr, status, error) {
+        console.log('Error status: ' + status);
+      }
+    });
   },
 
   loadImages: function(items) {
