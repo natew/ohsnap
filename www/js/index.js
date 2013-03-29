@@ -559,6 +559,7 @@ var app = {
           data.cdPanel.addClass('off').removeClass('shown');
           data.itemTimeStarted = new Date().getTime();
           app.startTimer();
+          $('#panel-game').addClass('loaded');
         }, 500)
       }, 1000);
     }
@@ -696,7 +697,6 @@ var app = {
     data.imgHalf = data.imgWidth / 2;
 
     app.bindItemImageEvents();
-    $('#panel-game').addClass('loaded');
   },
 
   startTimer: function() {
