@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 100, 2: 1, 3: 1 }, // seconds per round
+  timings: { 1: 15, 2: 15, 3: 10 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -605,7 +605,7 @@ var app = {
   incrementTimer: function() {
     data.roundCountdown -= 10;
 
-    if (data.roundCountdown <= 10) {
+    if (data.roundCountdown < 10) {
       $('#timer').html('00:000');
       app.roundTimedOut();
     } else {
