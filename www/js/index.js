@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 30, 2: 20, 3: 10 }, // seconds per round
+  timings: { 1: 2, 2: 2, 3: 1 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -302,37 +302,43 @@ var app = {
   },
 
   completeRound: function() {
-    console.log('complete round');
-    app.incrementRound();
-    app.resetRoundPanel();
-    app.loadRound();
+    console.log(data.currentRound);
+    if (data.currentRound <= data.totalRounds) {
+      app.incrementRound();
+      app.resetRoundPanel();
+      app.loadRound();
+    }
+    console.log(data.currentRound);
+
     app.showBetweenRoundPanel();
   },
 
   showBetweenRoundPanel: function() {
     $('#end-of-round').addClass('shown');
 
-    app.updateRoundCounter();
+    if (data.currentRound <= data.totalRounds) {
+      app.updateRoundCounter();
 
-    var checkRoundLoaded;
-    setTimeout(function() {
-      checkRoundLoaded = setInterval(function() {
-        if (data.roundLoaded) {
-          clearInterval(checkRoundLoaded);
-          app.startNextRound();
-          $('#end-of-round').removeClass('shown');
-        }
-      }, 200);
-
-      // Safety if we don't ever get a response
+      var checkRoundLoaded;
       setTimeout(function() {
-        if (!data.roundLoaded) {
-          // Timed out :(
-          clearInterval(checkRoundLoaded);
-          alert('timed out!');
-        }
-      }, 2000);
-    }, data.betweenPanelLength - 200);
+        checkRoundLoaded = setInterval(function() {
+          if (data.roundLoaded) {
+            clearInterval(checkRoundLoaded);
+            app.startNextRound();
+            $('#end-of-round').removeClass('shown');
+          }
+        }, 200);
+
+        // Safety if we don't ever get a response
+        setTimeout(function() {
+          if (!data.roundLoaded) {
+            // Timed out :(
+            clearInterval(checkRoundLoaded);
+            alert('timed out!');
+          }
+        }, 2000);
+      }, data.betweenPanelLength - 200);
+    }
   },
 
   startNextRound: function() {
