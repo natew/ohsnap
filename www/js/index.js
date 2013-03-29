@@ -25,12 +25,13 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 2, 2: 2, 3: 1 }, // seconds per round
+  timings: { 1: 5, 2: 3, 3: 2 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
   rounds: [],
   totalRounds: 3,
+  allRoundsCompleted: false,
   appHeight: $(window).height(),
   betweenPanelLength: 3000,
   sidebarOpacityMultiplier: 2
@@ -303,14 +304,27 @@ var app = {
 
   completeRound: function() {
     console.log(data.currentRound);
-    if (data.currentRound <= data.totalRounds) {
+
+    app.updateRoundPanel();
+
+    if (data.currentRound < data.totalRounds) {
       app.incrementRound();
       app.resetRoundPanel();
       app.loadRound();
     }
+    else {
+      // We need to set the round loaded variable
+      // to false since we've already gone through
+      // our last round.
+      data.roundLoaded = false;
+    }
     console.log(data.currentRound);
 
     app.showBetweenRoundPanel();
+  },
+
+  updateRoundPanel: function() {
+    $('#round-stats h4 .current-round').html(data.currentRound);
   },
 
   showBetweenRoundPanel: function() {
@@ -326,12 +340,15 @@ var app = {
             clearInterval(checkRoundLoaded);
             app.startNextRound();
             $('#end-of-round').removeClass('shown');
+            if (data.currentRound == data.totalRounds) {
+              data.allRoundsCompleted = true;
+            }
           }
         }, 200);
 
         // Safety if we don't ever get a response
         setTimeout(function() {
-          if (!data.roundLoaded) {
+          if (!data.roundLoaded && !data.allRoundsCompleted) {
             // Timed out :(
             clearInterval(checkRoundLoaded);
             alert('timed out!');
