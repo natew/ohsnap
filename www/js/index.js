@@ -414,7 +414,7 @@ var app = {
     }, 2000);
 
     function showBadge(file) {
-      $('<img class="badge" src="../img/badges/'+file+'.png">').appendTo('#badge-container');
+      $('<img class="badge" src="img/badges/'+file+'.png">').appendTo('#badge-container');
     }
   },
 
