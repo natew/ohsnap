@@ -532,6 +532,42 @@ h4 {
   -webkit-border-radius: 4px;
 }
 
+#badges {
+  position: relative;
+}
+
+#badge-container {
+  display: block;
+  position: absolute;
+  top: 15%;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  z-index: 100;
+  -webkit-animation: slam-in 1000ms 1 ease-in;
+  -webkit-transform: translate3d(0,0,0);
+}
+
+@-webkit-keyframes slam-in {
+  from {
+    opacity: 0.0;
+    -webkit-transform: scale(10) rotate(360deg);
+  }
+  to {
+    opacity: 1.0;
+    -webkit-transform: scale(1) rotate(0deg);
+  }
+}
+
 #final-results {
   position: absolute;
   top: 60px;

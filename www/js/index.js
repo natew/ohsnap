@@ -74,18 +74,7 @@ var app = {
     app.setupCategories();
     app.setupStartButton();
     app.setupDoneButton();
-
-    function getPhoneGapPath() {
-
-        var path = window.location.pathname;
-        path = path.substr( 0, path.length - 10 );
-        return 'file://' + path;
-
-    };
-
-    var resource = getPhoneGapPath() + 'audio/hiccup.wav';
-    var sound = new Media(resource);
-    sound.play();
+    app.showBadges();
   },
 
   resetGame: function() {
@@ -392,12 +381,44 @@ var app = {
         // to false since we've already gone through
         // our last round.
         data.roundLoaded = false;
-        app.showFinalGameScreen();
+        app.showBadges();
       }
     }, 500);
   },
 
-  showFinalGameScreen: function() {
+  showBadges: function() {
+    $('#badges').addClass('on');
+
+    var i = 0,
+        badges = [ "Fast Finisher", "Cheap Date", "High Maintenance", "Old Fogey" ],
+        badge_id_to_file = {
+          "Cheap Date": "cheap_date",
+          "Completionist": "completionist",
+          "Fast Finisher": "fast_finisher",
+          "High Maintenance": "high_maintenance",
+          "Slow Poke": "slow_poke",
+          "Old Fogey": "old_fogey"
+        };
+
+    var badgesInterval = setInterval(function() { 
+      showBadge(badge_id_to_file[badges[i]]);
+      i++;
+
+      if (i == badges.length) {
+        clearInterval(badgesInterval);
+
+        setTimeout(function() {
+          app.showFinalRecos();
+        }, 5000);
+      }
+    }, 2000);
+
+    function showBadge(file) {
+      $('<img class="badge" src="../img/badges/'+file+'.png">').appendTo('#badge-container');
+    }
+  },
+
+  showFinalRecos: function() {
     data.noScroll = false;
     $('#final-screen').addClass('on');
   },
@@ -580,7 +601,17 @@ var app = {
   // The scope of 'this' is the event. In order to call the 'receivedEvent'
   // function, we must explicity call 'app.receivedEvent(...);'
   onDeviceReady: function() {
-    // ready
+    // function getPhoneGapPath() {
+
+    //     var path = window.location.pathname;
+    //     path = path.substr( 0, path.length - 10 );
+    //     return 'file://' + path;
+
+    // };
+
+    // var resource = getPhoneGapPath() + 'audio/hiccup.wav';
+    // var sound = new Media('../audio/hiccup.wav');
+    // sound.play();
   }
 
 };
