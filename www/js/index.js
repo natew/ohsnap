@@ -57,10 +57,10 @@ var Round = function(number) {
   self.roundComplete = false;
 };
 
-var ItemResult = function(like, timeToDecide) {
+var ItemResult = function(like, timeToDecide, styleId, productId) {
   var self = this;
-  self.styleId = '';
-  self.productId = 
+  self.styleId = styleId;
+  self.productId = productId;
   self.like = like;
   self.timeToDecide = timeToDecide;
 };
@@ -312,15 +312,15 @@ var app = {
   },
 
   recordItemResult: function(like, timeToDecide, image) {
-    console.log(image[0]);
-
     var round = app.getCurrentRound();
     if (round.roundComplete) return false;
 
     round.countCompletedItems++;
     app.updateSidebar(round, like);
 
-    styleId
+    var styleId = image[0].getAttribute('styleId');
+    var productId = image[0].getAttribute('productId');
+
     // Push result
     round.itemResults.push(new ItemResult(like, timeToDecide, styleId, productId));
 
@@ -558,13 +558,19 @@ var app = {
     var items = null;
 
     if (roundNumber == 1) {
-      items = app.getInitialRoundData(function(data) {
-        console.log(data.recommendations);
-        app.loadImages(data.recommendations);
+      items = app.getInitialRoundData(function(responseData) {
+        if ((data.gameId == -1) || (data.gameId != responseData.gameId)) {
+         data.gameId = responseData.gameId;
+        }
+        console.log(responseData.recommendations);
+        app.loadImages(responseData.recommendations);
       });
     }
     // Send final round request.
     if (roundNumber == data.totalRounds) {
+      items = app.sendRoundResults(function(responseData) {
+        app.loadImages(responseData.recommendations);
+      });
     } 
     // Send all other round data for round X where: 1 < x < totalRounds.
     else {
@@ -572,8 +578,8 @@ var app = {
     }
   },
 
+  // AJAX request that sends profile data
   getInitialRoundData: function(callback) {
-
     $.ajax({
       dataType: 'jsonp',
       type: 'get',
@@ -583,7 +589,7 @@ var app = {
         if (callback) callback.call(this, data);
       },
       error: function(xhr, status, error) {
-        console.log('Error status: ' + status);
+        console.log('getInitialRoundData status: ' + status);
       }
     });
   },
@@ -595,10 +601,55 @@ var app = {
                 '&custId=' + data.deviceId + 
                 '&categories=' + categories + 
                 '&recommendationSize=' + data.itemCountToRequest[1];
+    return rval;
+  },
+
+  sendRoundResults: function(callback) {
+  $.ajax({
+      dataType: 'jsonp',
+      type: 'get',
+      url: 'http://ohsnap.elasticbeanstalk.com/game/roundResultsG?' + app.generateParamsStringForRoundResultsRequest(),
+      success: function(data) {
+        console.log(data);
+        if (callback) callback.call(this, data);
+      },
+      error: function(xhr, status, error) {
+        console.log('sendRoundResults status: ' + status);
+      }
+    });  
+  },
+
+  generateParamsStringForRoundResultsRequest: function() {
+    var currentRound = app.getCurrentRound.roundNumber;
+    var roundActions = app.generateRoundActionString(currentRound - 1);
+
+    var rval =  'custId=' + data.deviceId +
+                '&gameId=' + data.gameId +
+                '&roundId=' + currentRound +
+                '&recommendationSize=' + data.itemCountToRequest[currentRound] +
+                '&roundActions' + roundActions;
 
     return rval;
   },
 
+  generateRoundActionString: function(roundNumber) {
+    var itemResults = data.rounds[roundNumber].itemResults;
+
+    var paramsArray = [];
+
+    for (var i; i < itemResults.length; i++) {
+      var resultArray = [];
+      resultArray.push(itemResults[i].styleId);
+      resultArray.push(itemResults[i].productId);
+      resultArray.push(itemResults[i].like);
+      resultArray.push(itemResults[i].timeToDecide);
+
+      paramsArray.push(resultArray.join(':'))
+    }
+    var rval = paramsArray.join(',');
+    console.log(rval);
+    return rval;
+  },
 
 
   loadImages: function(items) {
