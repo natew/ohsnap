@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 5, 2: 3, 3: 2 }, // seconds per round
+  timings: { 1: 10, 2: 15, 3: 12 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -34,7 +34,8 @@ var data = {
   allRoundsCompleted: false,
   appHeight: $(window).height(),
   betweenPanelLength: 3000,
-  sidebarOpacityMultiplier: 2
+  sidebarOpacityMultiplier: 2,
+  itemTimeStarted: -1 // To track how long a user takes to decide on an item
 };
 
 var Round = function(number) {
@@ -49,10 +50,11 @@ var Round = function(number) {
   self.roundComplete = false;
 };
 
-var ItemResult = function(like) {
-  this.imageId = '';
-  this.like = like;
-  this.timeToDecide = 0;
+var ItemResult = function(like, timeToDecide) {
+  var self = this;
+  self.itemId = '';
+  self.like = like;
+  self.timeToDecide = timeToDecide;
 };
 
 var love = $('#love'),
@@ -214,15 +216,21 @@ var app = {
           moverTimeout = setTimeout(mover, sampleRate);
 
           function mover() {
+            var itemTimeEnded;
+
             curLeft += direction * Math.max( Math.abs(difference), 10); // min speed
 
             if (curLeft > data.screenWidth) {
               zImg.remove();
-              app.recordItemResult(true);
+              itemTimeEnded = (new Date().getTime()) - data.itemTimeStarted;
+              app.recordItemResult(true, itemTimeEnded);
+              data.itemTimeStarted = new Date().getTime();
             }
             else if (curLeft < 0) {
               zImg.remove();
-              app.recordItemResult(false);
+              itemTimeEnded = (new Date().getTime()) - data.itemTimeStarted;
+              app.recordItemResult(false, itemTimeEnded);
+              data.itemTimeStarted = new Date().getTime();
             }
             else {
               app.calcSidebarOpacity(img);
@@ -253,7 +261,7 @@ var app = {
     }
   },
 
-  recordItemResult: function(like) {
+  recordItemResult: function(like, timeToDecide) {
     var round = app.getCurrentRound();
     if (round.roundComplete) return false;
 
@@ -261,7 +269,7 @@ var app = {
     app.updateSidebar(round, like);
 
     // Push result
-    round.itemResults.push(new ItemResult(like));
+    round.itemResults.push(new ItemResult(like, timeToDecide));
 
     // If we have more images
     if (round.countCompletedItems != round.countItems) {
@@ -274,9 +282,7 @@ var app = {
     else {
       // No more images
       $('#position').css('width', '100%');
-      round.countCompletedItems++;
       round.roundComplete = true;
-      console.log(app.getCurrentRound());
       app.completeRound();
     }
   },
@@ -303,8 +309,6 @@ var app = {
   },
 
   completeRound: function() {
-    console.log(data.currentRound);
-
     app.updateRoundPanel();
 
     if (data.currentRound < data.totalRounds) {
@@ -318,13 +322,33 @@ var app = {
       // our last round.
       data.roundLoaded = false;
     }
-    console.log(data.currentRound);
 
     app.showBetweenRoundPanel();
   },
 
   updateRoundPanel: function() {
     $('#round-stats h4 .current-round').html(data.currentRound);
+    $('#round-stats .stat-rose .stat-value').text(data.rounds[data.currentRound].countCompletedItems + '/' + 
+                                                  data.rounds[data.currentRound].countItems);
+    $('#round-stats .stat-pink .stat-value').text(data.rounds[data.currentRound].countLiked + '');
+    $('#round-stats .stat-teal .stat-value').text(data.rounds[data.currentRound].countDisliked + '');
+    $('#round-stats .stat-blue .stat-value').text(app.calculateAverageTimeToDecide(data.currentRound) + ' sec');
+  },
+
+  calculateAverageTimeToDecide: function(currentRound) {
+    var rval = '--';
+
+    var totalTime = 0;
+    itemResults = data.rounds[currentRound].itemResults;
+
+    if (itemResults.length > 0) {
+      for (var i = 0; i < itemResults.length; i++) {
+        totalTime += itemResults[i].timeToDecide;
+      }
+      rval = totalTime/(1000 * itemResults.length);
+      rval = (rval.toFixed(2) * 100) / 100;  
+    }
+    return rval;
   },
 
   showBetweenRoundPanel: function() {
@@ -359,6 +383,7 @@ var app = {
   },
 
   startNextRound: function() {
+    data.itemTimeStarted = new Date().getTime();
     app.startTimer();
   },
 
