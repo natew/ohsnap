@@ -74,6 +74,18 @@ var app = {
     app.setupCategories();
     app.setupStartButton();
     app.setupDoneButton();
+
+    function getPhoneGapPath() {
+
+        var path = window.location.pathname;
+        path = path.substr( 0, path.length - 10 );
+        return 'file://' + path;
+
+    };
+
+    var resource = getPhoneGapPath() + 'audio/hiccup.wav';
+    var sound = new Media(resource);
+    sound.play();
   },
 
   resetGame: function() {
@@ -89,6 +101,8 @@ var app = {
     $('.toggles a').removeClass('active');
     $('#btn-start').html('Start!');
     $('#item-image').remove();
+    $('#round-3').removeClass('current');
+    $('#round-1').addClass('current').after($('#bar').remove());
     app.resetRoundPanel();
   },
 
