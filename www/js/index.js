@@ -128,6 +128,12 @@ var app = {
       e.preventDefault();
       app.nextPanel();
     });
+
+    $('#how-to-play-button').on('tap', function() {
+      $('#panel-how-to').addClass('next');
+      $('#panel-home').addClass('off');
+      $('#panel-how-to').addClass('on');
+    });
   },
 
   setupCategories: function() {
@@ -172,7 +178,7 @@ var app = {
   },
 
   setupDoneButton: function() {
-    $('#im-done, #final-back').on('tap', function() {
+    $('#im-done, .back').on('tap', function() {
       app.resetGame();
     });
   },
@@ -309,10 +315,10 @@ var app = {
     pastHalf = imgMid > data.screenHalf;
 
     if (pastHalf) {
-      opacity = Math.max( 1 - ((data.screenWidth - imgMid) / data.screenHalf), 0.2);
+      opacity = Math.max( 1 - ((data.screenWidth - imgMid) / data.screenHalf), 0.5);
       love.css('opacity', opacity * data.sidebarOpacityMultiplier);
     } else {
-      opacity = Math.max( (data.screenHalf - imgMid) / data.screenHalf, 0.2);
+      opacity = Math.max( (data.screenHalf - imgMid) / data.screenHalf, 0.5);
       nah.css('opacity', opacity * data.sidebarOpacityMultiplier);
     }
   },
@@ -363,12 +369,12 @@ var app = {
     if (val) {
       sidebar.addClass('liked');
       setTimeout(function() {
-        sidebar.removeClass('liked').css('opacity', '0.2');
+        sidebar.removeClass('liked').css('opacity', 0.5);
       }, 80);
     }
     // Nah'd
     else {
-      sidebar.css('opacity', '0.2');
+      sidebar.css('opacity', 0.5);
     }
   },
 
