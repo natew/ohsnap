@@ -359,17 +359,16 @@ h4 {
 .item-image {
   position: absolute;
   top: 180px;
-  left: 50%;
-  width: 223px;
+  width: 226px;
   height: auto;
-  border: 6px solid #5f95df;
+  border: 3px solid #5f95df;
   -webkit-border-radius: 4px;
   -webkit-transform: translate3d(0,0,0);
   -webkit-transition: all 50ms linear;
 }
 
 .item-image.centered {
-  margin: 0 0 0 -110px;
+  left: 48px;
 }
 
 .item-image.is-dragging {

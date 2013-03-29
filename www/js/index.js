@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 20, 2: 405, 3: 12 }, // seconds per round
+  timings: { 1: 20, 2: 15, 3: 12 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
