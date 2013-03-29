@@ -17,7 +17,7 @@
  * under the License.
  */
 
-var timerInterval, moverTimeout, countdownInterval;
+var timerInterval, moverTimeout, countdownInterval, statsTimeout, checkRoundLoaded;
 
 var data = {
   deviceId: "0H5N4P",
@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 20, 2: 15, 3: 12 }, // seconds per round
+  timings: { 1: 15, 2: 15, 3: 10 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -38,11 +38,10 @@ var data = {
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false,
   noScroll: true,
-  itemCountToRequest: {1: 9, 2: 8, 3:6}, // How many items to request per round
-  noScroll: true,
-  cdStart: 3,
+  cdStart: 2,
   cdTimer: $('#countdown'),
-  cdPanel: $('#panel-countdown')
+  cdPanel: $('#panel-countdown'),
+  numSelected: 0
 };
 
 var Round = function(number) {
@@ -85,6 +84,7 @@ var app = {
   resetGame: function() {
     clearTimeout(timerInterval);
     clearTimeout(moverTimeout);
+    data.numSelected = 0;
     data.currentRound = 0;
     data.rounds = [];
     data.roundLoaded = false;
@@ -93,11 +93,10 @@ var app = {
     $('.panel').removeClass('off on');
     $('#panel-home').addClass('on');
     $('.toggles a').removeClass('active');
-    $('#btn-start').html('Start!');
+    $('#btn-start').html('Start!').addClass('disabled');
     $('#item-image').remove();
     $('#round-3').removeClass('current');
     $('#round-1').addClass('current').after($('#bar').remove());
-    app.setupCategories();
     app.resetRoundPanel();
   },
 
@@ -130,28 +129,34 @@ var app = {
       e.preventDefault();
       app.nextPanel();
     });
+
+    $('#how-to-play-button').on('tap', function() {
+      $('#panel-how-to').addClass('next');
+      $('#panel-home').addClass('off');
+      $('#panel-how-to').addClass('on');
+    });
   },
 
   setupCategories: function() {
-    var numSelected = 0;
-
     // Toggles! Limit to 3
     $('.toggles').on('tap', 'a', function() {
       var el = $(this),
           selected = el.is('.active');
 
+          console.log(data.numSelected)
+
       if (selected) {
-        numSelected--;
+        data.numSelected--;
         el.removeClass('active');
       }
       else {
-        if (numSelected < 3) {
-          numSelected++;
+        if (data.numSelected < 3) {
+          data.numSelected++;
           el.addClass('active');
         }
       }
 
-      $('#btn-start').toggleClass('disabled', !numSelected);
+      $('#btn-start').toggleClass('disabled', !data.numSelected);
     });
   },
 
@@ -174,7 +179,7 @@ var app = {
   },
 
   setupDoneButton: function() {
-    $('#im-done, #final-back').on('tap', function() {
+    $('#im-done, .back').on('tap', function() {
       app.resetGame();
     });
   },
@@ -199,10 +204,10 @@ var app = {
     var lastPos = [0, 0],
         curPos = [0, 0],
         wait = false,
-        sampleRate = 30;
+        sampleRate = 20;
 
     // Thresholds for minimum move to count
-    var adjust = 10;
+    var adjust = 15;
     data.leftThreshold = data.screenHalf - data.imgHalf - adjust;
     data.rightThreshold = data.screenHalf - data.imgHalf + adjust;
 
@@ -240,15 +245,23 @@ var app = {
               direction = difference > 0 ? 1 : -1,
               curLeft = img.offsetLeft;
 
-          // far enough right
-          if (curLeft > data.rightThreshold) {
+          // First check if we have enough velocity
+          if (difference > 10) {
             direction = 1;
           }
-          // far enough left
+          else if (difference < -10) {
+            direction = -1;
+          }
+
+          // Or if we are past the threshhold
+          else if (curLeft > data.rightThreshold) {
+            direction = 1;
+          }
           else if (curLeft < data.leftThreshold) {
             direction = -1;
           }
-          // not far enough
+
+          // Else not far enough, re-center it
           else {
             data.reCenterImage = true;
             return false;
@@ -303,10 +316,10 @@ var app = {
     pastHalf = imgMid > data.screenHalf;
 
     if (pastHalf) {
-      opacity = 1 - ((data.screenWidth - imgMid) / data.screenHalf);
+      opacity = Math.max( 1 - ((data.screenWidth - imgMid) / data.screenHalf), 0.5);
       love.css('opacity', opacity * data.sidebarOpacityMultiplier);
     } else {
-      opacity = (data.screenHalf - imgMid) / data.screenHalf;
+      opacity = Math.max( (data.screenHalf - imgMid) / data.screenHalf, 0.5);
       nah.css('opacity', opacity * data.sidebarOpacityMultiplier);
     }
   },
@@ -325,6 +338,7 @@ var app = {
     round.itemResults.push(new ItemResult(like, timeToDecide, styleId, productId));
 
     // If we have more images
+    console.log('if we have more', round.countCompletedItems != round.countItems)
     if (round.countCompletedItems != round.countItems) {
       // Update percent done progress
       if (round.countItems > 0) {
@@ -359,27 +373,33 @@ var app = {
     if (val) {
       sidebar.addClass('liked');
       setTimeout(function() {
-        sidebar.removeClass('liked');
+        sidebar.removeClass('liked').css('opacity', 0.5);
       }, 80);
     }
     // Nah'd
     else {
-      sidebar.css('opacity', '0');
+      sidebar.css('opacity', 0.5);
     }
   },
 
   roundTimedOut: function() {
+    console.log('round timed out');
     round.roundComplete = true;
     app.completeRound();
   },
 
   completeRound: function() {
+    clearTimeout(timerInterval);
+    console.log('complete round')
     clearTimeout(moverTimeout);
     app.updateRoundPanel();
 
     // 1 second delay before showing stats
-    setTimeout(function() {
+    clearTimeout(statsTimeout);
+    statsTimeout = setTimeout(function() {
+      console.log('current round', data.currentRound, 'total rounds', data.totalRounds);
       if (data.currentRound < data.totalRounds) {
+        console.log('---run round---');
         app.incrementRound();
         app.resetRoundPanel();
         app.loadRound();
@@ -397,7 +417,7 @@ var app = {
           app.showBadges();
         }, data.betweenPanelLength);
       }
-    }, 500);
+    }, 400);
   },
 
   showBadges: function() {
@@ -416,6 +436,7 @@ var app = {
         };
 
     var badgesInterval = setInterval(function() { 
+      console.log('show badge', i)
       showBadge(badge_id_to_file[badges[i]]);
       i++;
 
@@ -423,6 +444,7 @@ var app = {
         clearInterval(badgesInterval);
 
         setTimeout(function() {
+          $('#badges').addClass('off');
           app.showFinalRecos();
         }, 5000);
       }
@@ -458,7 +480,7 @@ var app = {
         totalTime += itemResults[i].timeToDecide;
       }
       rval = totalTime/(1000 * itemResults.length);
-      rval = (rval.toFixed(2) * 100) / 100;  
+      rval = (rval.toFixed(1) * 100) / 100;  
     }
     return rval;
   },
@@ -470,9 +492,9 @@ var app = {
   },
 
   delayedStartNextRound: function() {
-    var checkRoundLoaded;
     setTimeout(function() {
       checkRoundLoaded = setInterval(function() {
+        console.log('loaded?', data.roundLoaded)
         if (data.roundLoaded) {
           clearInterval(checkRoundLoaded);
           app.startNextRound();
@@ -517,7 +539,7 @@ var app = {
   startNextRound: function() {
     $('#start-round-title').html('Round ' + data.currentRound);
     data.cdPanel.addClass('shown').removeClass('off');
-    data.cdStart = 3;
+    data.cdStart = 2;
     data.cdTimer.html(data.cdStart);
     app.doCountdown();
     countdownInterval = setInterval(app.doCountdown, 1000);
@@ -529,7 +551,7 @@ var app = {
       clearInterval(countdownInterval);
 
       setTimeout(function() {
-        data.cdTimer.html('START SWIPING!');
+        data.cdTimer.html('Start!');
 
         setTimeout(function() {
           data.cdPanel.addClass('off').removeClass('shown');
@@ -555,6 +577,8 @@ var app = {
   loadRound: function() {
     var roundNumber = app.getCurrentRound().roundNumber;
 
+    console.log('ROUND LOADED')
+    data.roundLoaded = true;
     var items = null;
 
     if (roundNumber == 1) {
@@ -675,16 +699,19 @@ var app = {
 
   startTimer: function() {
     data.roundCountdown = data.timings[data.currentRound] * 1000;
+    console.log('start timer', data.roundCountdown);
     app.updateTimer(data.roundCountdown);
-    timerInterval = setTimeout(app.incrementTimer, 10);
+    app.incrementTimer();
   },
 
   incrementTimer: function() {
     data.roundCountdown -= 10;
 
-    if (data.roundCountdown <= 10) {
+    if (data.roundCountdown < 10) {
+      clearTimeout(timerInterval);
       $('#timer').html('00:000');
-      app.roundTimedOut();
+      if (!app.getCurrentRound().roundComplete)
+        app.roundTimedOut();
     } else {
       app.updateTimer(data.roundCountdown);
       timerInterval = setTimeout(app.incrementTimer, 10);
