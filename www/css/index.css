@@ -532,6 +532,28 @@ h4 {
   -webkit-border-radius: 4px;
 }
 
+#panel-countdown {
+  text-align: center;
+}
+
+#panel-countdown.shown {
+  z-index: 2;
+  display: block;
+  -webkit-box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  position: absolute;
+  top: 0; 
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#countdown {
+  padding: 10px;
+  color: #ff126a;
+  display: inline-block;
+  font-size: 28px;
+}
+
 #badges {
   position: relative;
 }
