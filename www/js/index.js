@@ -36,7 +36,8 @@ var data = {
   betweenPanelLength: 4000,
   sidebarOpacityMultiplier: 2,
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
-  reCenterImage: false
+  reCenterImage: false,
+  noScroll: true
 };
 
 var Round = function(number) {
@@ -82,6 +83,7 @@ var app = {
     data.rounds = [];
     data.roundLoaded = false;
     data.panelIndex = 0;
+    data.noScroll = true;
     $('.panel').removeClass('off on');
     $('#panel-home').addClass('on');
     $('.toggles a').removeClass('active');
@@ -182,10 +184,10 @@ var app = {
     var lastPos = [0, 0],
         curPos = [0, 0],
         wait = false,
-        sampleRate = 10;
+        sampleRate = 30;
 
     // Thresholds for minimum move to count
-    var adjust = 30;
+    var adjust = 10;
     data.leftThreshold = data.screenHalf - data.imgHalf - adjust;
     data.rightThreshold = data.screenHalf - data.imgHalf + adjust;
 
@@ -237,7 +239,7 @@ var app = {
             return false;
           }
 
-          step = direction * Math.max( Math.abs(difference), 30);
+          step = direction * Math.max( Math.abs(difference), 35);
           moverTimeout = setTimeout(mover, sampleRate);
 
           function mover() {
@@ -371,14 +373,13 @@ var app = {
         // our last round.
         data.roundLoaded = false;
         app.showFinalGameScreen();
-        $('body').addClass('allowOverflow');
       }
     }, 500);
   },
 
   showFinalGameScreen: function() {
+    data.noScroll = false;
     $('#final-screen').addClass('on');
-    $('')
   },
 
   updateRoundPanel: function() {
@@ -447,7 +448,7 @@ var app = {
           randomSaying = sayingsWhileYouWait[randomIndex];
 
       sayings.html(randomSaying);
-    }, 500);
+    }, 700);
 
     setTimeout(function() {
       clearInterval(sayingInterval);

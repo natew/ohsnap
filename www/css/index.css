@@ -56,10 +56,6 @@ body {
   overflow: hidden;
 }
 
-body.allowOverflow {
-  overflow: visible;
-}
-
 div, a, span, img {
   box-sizing: border-box;
   -ms-box-sizing: border-box;
@@ -543,6 +539,7 @@ h4 {
   right: 20px;
   bottom: 0;
   overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 #final-results a {
