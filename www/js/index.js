@@ -37,8 +37,8 @@ var data = {
   sidebarOpacityMultiplier: 2,
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false,
-  noScroll: true
-  itemCountToRequest: {1: 10, 2: 8, 3:6} // How many items to request per round
+  noScroll: true,
+  itemCountToRequest: {1: 9, 2: 8, 3:6}, // How many items to request per round
   noScroll: true,
   cdStart: 3,
   cdTimer: $('#countdown'),
@@ -551,37 +551,52 @@ var app = {
   loadRound: function() {
     var roundNumber = app.getCurrentRound().roundNumber;
 
+    var items = null;
+
     if (roundNumber == 1) {
+      items = app.getInitialRoundData(function(data) {
+        console.log(data.recommendations);
+        app.loadImages(data.recommendations);
+      });
+    }
+    // Send final round request.
+    if (roundNumber == data.totalRounds) {
 
-    }    
-    // Temp
-    // var items = [
-    //   {"url":"http://www.zappos.com/images/z/1/9/5/8/8/3/1958832-t-THUMBNAIL.jpg","id":"1958832"},
-    //   {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008296-t-THUMBNAIL.jpg","id":"2008296"},
-    //   {"url":"http://www.zappos.com/images/z/2/0/0/8/2/9/2008295-t-THUMBNAIL.jpg","id":"2008295"},
-    //   {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902054-t-THUMBNAIL.jpg","id":"1902054"},
-    //   {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
-    // ];
-
-    data.roundLoaded = true;
-
-    app.loadImages(items);
-    $('#panel-game').addClass('loaded');
+    } 
+    // Send all other round data for round X where: 1 < x < totalRounds.
+    else {
+      // http://ohsnap.elasticbeanstalk.com/game/finishGameG?custId=1&gameId=1364578445189&roundId=1&roundActions=1:7893877:true:123456789&recommendationSize=5&callback=abc
+    }
   },
 
-  getInitialRoundData: function() {
+  getInitialRoundData: function(callback) {
+
     $.ajax({
       dataType: 'jsonp',
       type: 'get',
       url: 'http://ohsnap.elasticbeanstalk.com/game/startG?' + app.generateParamsStringForInitialRoundRequest(),
       success: function(data) {
         console.log(data);
+        if (callback) callback.call(this, data);
       },
       error: function(xhr, status, error) {
         console.log('Error status: ' + status);
       }
     });
   },
+
+  generateParamsStringForInitialRoundRequest: function() {
+    var categories = $('.toggles .active').pluck('id').join(',');
+
+    var rval =  'gender=' + data.gender + 
+                '&custId=' + data.deviceId + 
+                '&categories=' + categories + 
+                '&recommendationSize=' + data.itemCountToRequest[1];
+
+    return rval;
+  },
+
+
 
   loadImages: function(items) {
     var i, len, round = app.getCurrentRound();
@@ -598,6 +613,7 @@ var app = {
     data.imgHalf = data.imgWidth / 2;
 
     app.bindItemImageEvents();
+    $('#panel-game').addClass('loaded');
   },
 
   startTimer: function() {
