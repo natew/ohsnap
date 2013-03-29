@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 10, 2: 15, 3: 12 }, // seconds per round
+  timings: { 1: 1000, 2: 15, 3: 12 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -35,7 +35,8 @@ var data = {
   appHeight: $(window).height(),
   betweenPanelLength: 3000,
   sidebarOpacityMultiplier: 2,
-  itemTimeStarted: -1 // To track how long a user takes to decide on an item
+  itemTimeStarted: -1, // To track how long a user takes to decide on an item
+  reCenterImage: false
 };
 
 var Round = function(number) {
@@ -86,8 +87,16 @@ var app = {
   },
 
   setupPanels: function() {
+    data.screenWidth = $(window).width();
+    data.screenHalf = data.screenWidth / 2;
+
     $('.panel').each(function() {
       data.panels.push($(this));
+
+      var center = $('.center', this);
+      if (center.length) {
+        center.css('margin-top', '-' + center.height() / 2 + 'px');
+      }
     });
   },
 
@@ -172,15 +181,14 @@ var app = {
         sampleRate = 10,
         moverTimeout;
 
+    // Thresholds for minimum move to count
+    var adjust = 30;
+    data.leftThreshold = data.screenHalf - data.imgHalf - adjust;
+    data.rightThreshold = data.screenHalf - data.imgHalf + adjust;
+
     $('.item-image')
       .draggable({
         start: function() {
-          var imgWidth = $(this).width();
-
-          data.screenWidth = $(window).width();
-          data.screenHalf = data.screenWidth / 2;
-          data.imgHalf = imgWidth / 2;
-
           clearTimeout(moverTimeout);
         },
 
@@ -189,7 +197,7 @@ var app = {
           app.calcSidebarOpacity(img);
 
           if (!lastPos) {
-            lastPos = offsets(img);
+            lastPos = img.offsetLeft;
           }
           else {
             if (!wait) {
@@ -210,15 +218,31 @@ var app = {
               zImg = $(this),
               difference = curPos - lastPos,
               direction = difference > 0 ? 1 : -1,
-              curTop = img.offsetTop,
               curLeft = img.offsetLeft;
 
+          if (curLeft > data.rightThreshold) {
+            // far enough right
+            direction = 1;
+          }
+          else if (curLeft < data.leftThreshold) {
+            // far enough left
+            direction = -1;
+          }
+          else {
+            // not far enough
+            data.reCenterImage = true;
+            return false;
+          }
+
+          step = direction * Math.max( Math.abs(difference), 10);
+          console.log(step)
           moverTimeout = setTimeout(mover, sampleRate);
 
           function mover() {
             var itemTimeEnded;
 
-            curLeft += direction * Math.max( Math.abs(difference), 10); // min speed
+            curLeft += step;
+            console.log(curLeft);
 
             if (curLeft > data.screenWidth) {
               zImg.remove();
@@ -245,6 +269,16 @@ var app = {
       })
       .on('draggable:end', function() {
         $(this).removeClass('is-dragging centered');
+
+        if (data.reCenterImage) {
+          console.log('recenter');
+          var img = $(this);
+          setTimeout(function() {
+            img.css('left', '').removeAttr('style').addClass('centered');
+          })
+          console.log(img);
+          data.reCenterImage = false;
+        }
       });
   },
 
@@ -300,7 +334,19 @@ var app = {
   },
 
   showSidebar: function(id, val) {
-    $('#' + id).css('visibility', val ? 'visible' : 'hidden');
+    var sidebar = $('#' + id);
+
+    // Liked
+    if (val) {
+      sidebar.addClass('liked');
+      setTimeout(function() {
+        sidebar.removeClass('liked');
+      }, 80);
+    }
+    // Nah'd
+    else {
+      sidebar.css('opacity', '0');
+    }
   },
 
   roundTimedOut: function() {
@@ -311,19 +357,22 @@ var app = {
   completeRound: function() {
     app.updateRoundPanel();
 
-    if (data.currentRound < data.totalRounds) {
-      app.incrementRound();
-      app.resetRoundPanel();
-      app.loadRound();
-    }
-    else {
-      // We need to set the round loaded variable
-      // to false since we've already gone through
-      // our last round.
-      data.roundLoaded = false;
-    }
+    // 1 second delay before showing stats
+    setTimeout(function() {
+      if (data.currentRound < data.totalRounds) {
+        app.incrementRound();
+        app.resetRoundPanel();
+        app.loadRound();
+      }
+      else {
+        // We need to set the round loaded variable
+        // to false since we've already gone through
+        // our last round.
+        data.roundLoaded = false;
+      }
 
-    app.showBetweenRoundPanel();
+      app.showBetweenRoundPanel();
+    }, 500);
   },
 
   updateRoundPanel: function() {
@@ -442,6 +491,9 @@ var app = {
     for (i = 0; i < len; i++) {
       $('<img class="item-image centered" src="'+round.items[i].url+'">').appendTo('#game-images');
     }
+
+    data.imgWidth = $('.item-image').width();
+    data.imgHalf = data.imgWidth / 2;
 
     app.bindItemImageEvents();
   },

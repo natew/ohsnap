@@ -126,19 +126,26 @@ h4 {
 
 .panel.on {
   z-index: 2;
-  display: table;
+  display: block;
   -webkit-box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  position: absolute;
+  top: 0; 
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .panel .center {
-  display:table-cell;
-  vertical-align:middle;
+  top: 50%;
+  position: absolute;
+  left: 15px;
+  right: 15px;
 }
 
 .panel.off {
   -webkit-animation: fall 500ms 1;
   -webkit-animation-fill-mode: forwards;
-  display: table;
+  display: block;
   z-index: 3;
   pointer-events: none;
 }
@@ -358,6 +365,7 @@ h4 {
   border: 6px solid #5f95df;
   -webkit-border-radius: 4px;
   -webkit-transform: translate3d(0,0,0);
+  -webkit-transition: all 50ms linear;
 }
 
 .item-image.centered {
@@ -381,7 +389,11 @@ h4 {
   font-size: 16px;
   z-index: 200000;
   -webkit-transform: translate3d(0,0,0);
-  -webkit-transition: all 100ms;
+  -webkit-transition: all 80ms;
+}
+
+.sidebar.liked {
+  -webkit-transform: scale(2.0);
 }
 
 .sidebar span {
