@@ -353,6 +353,7 @@ var app = {
 
   showBetweenRoundPanel: function() {
     $('#end-of-round').addClass('shown');
+    app.chooseRandomSaying();
 
     if (data.currentRound <= data.totalRounds) {
       app.updateRoundCounter();
@@ -380,6 +381,22 @@ var app = {
         }, 2000);
       }, data.betweenPanelLength - 200);
     }
+  },
+
+  chooseRandomSaying: function() {
+    var sayingsWhileYouWait = [ 'Proxying getsticulation request...', 
+                            'Forming opinions of grandeur...',
+                            'Fueling baboons for eradication...',
+                            'Proxying getsticulation request...', 
+                            'Forming opinions of grandeur...',
+                            'Fueling baboons for eradication...'];
+
+    var randomIndex = Math.floor(Math.random() * (sayingsWhileYouWait.length));
+
+    console.log(randomIndex);
+    var randomSaying = sayingsWhileYouWait[randomIndex];
+
+    $('#sayings-from-the-soul').html(randomSaying);
   },
 
   startNextRound: function() {
