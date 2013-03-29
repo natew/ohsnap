@@ -17,7 +17,7 @@
  * under the License.
  */
 
-var timerInterval, moverTimeout, countdownInterval;
+var timerInterval, moverTimeout, countdownInterval, statsTimeout;
 
 var data = {
   deviceId: "0H5N4P",
@@ -40,7 +40,8 @@ var data = {
   noScroll: true,
   cdStart: 2,
   cdTimer: $('#countdown'),
-  cdPanel: $('#panel-countdown')
+  cdPanel: $('#panel-countdown'),
+  numSelected: 0
 };
 
 var Round = function(number) {
@@ -82,6 +83,7 @@ var app = {
   resetGame: function() {
     clearTimeout(timerInterval);
     clearTimeout(moverTimeout);
+    data.numSelected = 0;
     data.currentRound = 0;
     data.rounds = [];
     data.roundLoaded = false;
@@ -90,11 +92,10 @@ var app = {
     $('.panel').removeClass('off on');
     $('#panel-home').addClass('on');
     $('.toggles a').removeClass('active');
-    $('#btn-start').html('Start!');
+    $('#btn-start').html('Start!').addClass('disabled');
     $('#item-image').remove();
     $('#round-3').removeClass('current');
     $('#round-1').addClass('current').after($('#bar').remove());
-    app.setupCategories();
     app.resetRoundPanel();
   },
 
@@ -130,25 +131,25 @@ var app = {
   },
 
   setupCategories: function() {
-    var numSelected = 0;
-
     // Toggles! Limit to 3
     $('.toggles').on('tap', 'a', function() {
       var el = $(this),
           selected = el.is('.active');
 
+          console.log(data.numSelected)
+
       if (selected) {
-        numSelected--;
+        data.numSelected--;
         el.removeClass('active');
       }
       else {
-        if (numSelected < 3) {
-          numSelected++;
+        if (data.numSelected < 3) {
+          data.numSelected++;
           el.addClass('active');
         }
       }
 
-      $('#btn-start').toggleClass('disabled', !numSelected);
+      $('#btn-start').toggleClass('disabled', !data.numSelected);
     });
   },
 
@@ -327,6 +328,7 @@ var app = {
     round.itemResults.push(new ItemResult(like, timeToDecide));
 
     // If we have more images
+    console.log('if we have more', round.countCompletedItems != round.countItems)
     if (round.countCompletedItems != round.countItems) {
       // Update percent done progress
       if (round.countItems > 0) {
@@ -371,16 +373,19 @@ var app = {
   },
 
   roundTimedOut: function() {
+    console.log('round timed out');
     round.roundComplete = true;
     app.completeRound();
   },
 
   completeRound: function() {
+    console.log('complete round')
     clearTimeout(moverTimeout);
     app.updateRoundPanel();
 
     // 1 second delay before showing stats
-    setTimeout(function() {
+    clearTimeout(statsTimeout);
+    statsTimeout = setTimeout(function() {
       if (data.currentRound < data.totalRounds) {
         app.incrementRound();
         app.resetRoundPanel();
@@ -399,7 +404,7 @@ var app = {
           app.showBadges();
         }, data.betweenPanelLength);
       }
-    }, 500);
+    }, 400);
   },
 
   showBadges: function() {
@@ -426,6 +431,7 @@ var app = {
         clearInterval(badgesInterval);
 
         setTimeout(function() {
+          $('#badges').addClass('off');
           app.showFinalRecos();
         }, 5000);
       }
@@ -532,7 +538,7 @@ var app = {
       clearInterval(countdownInterval);
 
       setTimeout(function() {
-        data.cdTimer.html('START SWIPING!');
+        data.cdTimer.html('Start!');
 
         setTimeout(function() {
           data.cdPanel.addClass('off').removeClass('shown');
@@ -590,9 +596,10 @@ var app = {
   },
 
   startTimer: function() {
+    console.log('start timer');
     data.roundCountdown = data.timings[data.currentRound] * 1000;
     app.updateTimer(data.roundCountdown);
-    timerInterval = setTimeout(app.incrementTimer, 10);
+    app.incrementTimer();
   },
 
   incrementTimer: function() {
