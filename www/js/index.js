@@ -33,7 +33,7 @@ var data = {
   totalRounds: 3,
   allRoundsCompleted: false,
   appHeight: $(window).height(),
-  betweenPanelLength: 4000,
+  betweenPanelLength: 5000,
   sidebarOpacityMultiplier: 2,
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false,
@@ -130,6 +130,7 @@ var app = {
     });
 
     $('#how-to-play-button').on('tap', function() {
+      data.noScroll = false;
       $('#panel-how-to').addClass('next');
       $('#panel-home').addClass('off');
       $('#panel-how-to').addClass('on');
@@ -674,31 +675,3 @@ var app = {
   }
 
 };
-
-
-// $('body').swipeRight(function() {$('#intro').html('<li>right</li>');});
-// $('body').swipeLeft(function() {$('#intro').html('<li>left</li>');});
-// $('body').swipeUp(function() {$('#intro').html('<li>up</li>');});
-// $('body').tap(function() {$('#intro').html('<li>tap</li>');});
-// $('body').doubleTap(function() {$('#intro').html('<li>double tap</li>');});
-// $('body').longTap(function() {$('#intro').html('long tap');});
-
-
-// $.ajax({
-//   dataType: 'JSONP',
-//   type: 'GET',
-//   url: 'http://ohsnap.elasticbeanstalk.com/recommendation/custId/1/resultSize/10',
-//   success: function(data) {
-//     console.log(data);
-//   }
-// });
-// $.ajax({
-//   type: 'POST',
-//   url: 'http://ohsnap.elasticbeanstalk.com/start',
-//   data: {
-//     gender: data.gender,
-//     categories: $('.toggles .active').pluck('id')
-//   },
-//   success: function(data) {
-//   }
-// });
