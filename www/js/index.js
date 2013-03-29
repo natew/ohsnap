@@ -17,7 +17,7 @@
  * under the License.
  */
 
-var timerInterval, moverTimeout, countdownInterval, statsTimeout;
+var timerInterval, moverTimeout, countdownInterval, statsTimeout, checkRoundLoaded;
 
 var data = {
   deviceId: "0H5N4P",
@@ -379,6 +379,7 @@ var app = {
   },
 
   completeRound: function() {
+    clearTimeout(timerInterval);
     console.log('complete round')
     clearTimeout(moverTimeout);
     app.updateRoundPanel();
@@ -386,7 +387,9 @@ var app = {
     // 1 second delay before showing stats
     clearTimeout(statsTimeout);
     statsTimeout = setTimeout(function() {
+      console.log('current round', data.currentRound, 'total rounds', data.totalRounds);
       if (data.currentRound < data.totalRounds) {
+        console.log('---run round---');
         app.incrementRound();
         app.resetRoundPanel();
         app.loadRound();
@@ -479,9 +482,9 @@ var app = {
   },
 
   delayedStartNextRound: function() {
-    var checkRoundLoaded;
     setTimeout(function() {
       checkRoundLoaded = setInterval(function() {
+        console.log('loaded?', data.roundLoaded)
         if (data.roundLoaded) {
           clearInterval(checkRoundLoaded);
           app.startNextRound();
@@ -572,6 +575,7 @@ var app = {
       {"url":"http://www.zappos.com/images/z/1/9/0/2/0/5/1902055-t-THUMBNAIL.jpg","id":"1902055"}
     ];
 
+    console.log('ROUND LOADED')
     data.roundLoaded = true;
 
     app.loadImages(items);
@@ -596,8 +600,8 @@ var app = {
   },
 
   startTimer: function() {
-    console.log('start timer');
     data.roundCountdown = data.timings[data.currentRound] * 1000;
+    console.log('start timer', data.roundCountdown);
     app.updateTimer(data.roundCountdown);
     app.incrementTimer();
   },
@@ -606,9 +610,9 @@ var app = {
     data.roundCountdown -= 10;
 
     if (data.roundCountdown < 10) {
-      clearInterval(timerInterval);
+      clearTimeout(timerInterval);
       $('#timer').html('00:000');
-      if (!round.roundComplete)
+      if (!app.getCurrentRound().roundComplete)
         app.roundTimedOut();
     } else {
       app.updateTimer(data.roundCountdown);
