@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 20, 2: 15, 3: 12 }, // seconds per round
+  timings: { 1: 100, 2: 1, 3: 1 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -38,7 +38,7 @@ var data = {
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false,
   noScroll: true,
-  cdStart: 3,
+  cdStart: 2,
   cdTimer: $('#countdown'),
   cdPanel: $('#panel-countdown')
 };
@@ -196,10 +196,10 @@ var app = {
     var lastPos = [0, 0],
         curPos = [0, 0],
         wait = false,
-        sampleRate = 30;
+        sampleRate = 20;
 
     // Thresholds for minimum move to count
-    var adjust = 10;
+    var adjust = 15;
     data.leftThreshold = data.screenHalf - data.imgHalf - adjust;
     data.rightThreshold = data.screenHalf - data.imgHalf + adjust;
 
@@ -237,15 +237,23 @@ var app = {
               direction = difference > 0 ? 1 : -1,
               curLeft = img.offsetLeft;
 
-          // far enough right
-          if (curLeft > data.rightThreshold) {
+          // First check if we have enough velocity
+          if (difference > 10) {
             direction = 1;
           }
-          // far enough left
+          else if (difference < -10) {
+            direction = -1;
+          }
+
+          // Or if we are past the threshhold
+          else if (curLeft > data.rightThreshold) {
+            direction = 1;
+          }
           else if (curLeft < data.leftThreshold) {
             direction = -1;
           }
-          // not far enough
+
+          // Else not far enough, re-center it
           else {
             data.reCenterImage = true;
             return false;
@@ -300,10 +308,10 @@ var app = {
     pastHalf = imgMid > data.screenHalf;
 
     if (pastHalf) {
-      opacity = 1 - ((data.screenWidth - imgMid) / data.screenHalf);
+      opacity = Math.max( 1 - ((data.screenWidth - imgMid) / data.screenHalf), 0.2);
       love.css('opacity', opacity * data.sidebarOpacityMultiplier);
     } else {
-      opacity = (data.screenHalf - imgMid) / data.screenHalf;
+      opacity = Math.max( (data.screenHalf - imgMid) / data.screenHalf, 0.2);
       nah.css('opacity', opacity * data.sidebarOpacityMultiplier);
     }
   },
@@ -353,12 +361,12 @@ var app = {
     if (val) {
       sidebar.addClass('liked');
       setTimeout(function() {
-        sidebar.removeClass('liked');
+        sidebar.removeClass('liked').css('opacity', '0.2');
       }, 80);
     }
     // Nah'd
     else {
-      sidebar.css('opacity', '0');
+      sidebar.css('opacity', '0.2');
     }
   },
 
@@ -410,6 +418,7 @@ var app = {
         };
 
     var badgesInterval = setInterval(function() { 
+      console.log('show badge', i)
       showBadge(badge_id_to_file[badges[i]]);
       i++;
 
@@ -511,7 +520,7 @@ var app = {
   startNextRound: function() {
     $('#start-round-title').html('Round ' + data.currentRound);
     data.cdPanel.addClass('shown').removeClass('off');
-    data.cdStart = 3;
+    data.cdStart = 2;
     data.cdTimer.html(data.cdStart);
     app.doCountdown();
     countdownInterval = setInterval(app.doCountdown, 1000);

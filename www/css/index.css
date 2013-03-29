@@ -393,6 +393,7 @@ h4 {
 
 .sidebar.liked {
   -webkit-transform: scale(2.0);
+  opacity: 1 !important;
 }
 
 .sidebar span {
@@ -404,7 +405,7 @@ h4 {
 }
 
 #love {
-  opacity: 0;
+  opacity: 0.2;
   right: -4px;
 }
 
@@ -413,7 +414,7 @@ h4 {
 }
 
 #nah {
-  opacity: 0;
+  opacity: 0.2;
   left: -4px;
 }
 
@@ -551,7 +552,7 @@ h4 {
   padding: 10px;
   color: #ff126a;
   display: inline-block;
-  font-size: 28px;
+  font-size: 38px;
 }
 
 #badges {
