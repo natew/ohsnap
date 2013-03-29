@@ -17,7 +17,7 @@
  * under the License.
  */
 
-var timerInterval;
+var timerInterval, moverTimeout;
 
 var data = {
   deviceId: "0H5N4P",
@@ -76,6 +76,8 @@ var app = {
   },
 
   resetGame: function() {
+    clearTimeout(timerInterval);
+    clearTimeout(moverTimeout);
     data.currentRound = 0;
     data.rounds = [];
     data.roundLoaded = false;
@@ -83,6 +85,7 @@ var app = {
     $('.panel').removeClass('off on');
     $('#panel-home').addClass('on');
     $('.toggles a').removeClass('active');
+    $('#btn-start').html('Start!');
     app.resetRoundPanel();
   },
 
@@ -141,7 +144,7 @@ var app = {
   },
 
   setupStartButton: function() {
-    $('#btn-start').one('tap', function() {
+    $('#btn-start').on('tap', function() {
       var el = $(this);
       el.html('Loading...');
       el.addClass('btn-next');
@@ -178,8 +181,7 @@ var app = {
     var lastPos = [0, 0],
         curPos = [0, 0],
         wait = false,
-        sampleRate = 10,
-        moverTimeout;
+        sampleRate = 10;
 
     // Thresholds for minimum move to count
     var adjust = 30;
@@ -355,6 +357,7 @@ var app = {
   },
 
   completeRound: function() {
+    clearTimeout(moverTimeout);
     app.updateRoundPanel();
 
     // 1 second delay before showing stats
@@ -426,7 +429,6 @@ var app = {
           if (!data.roundLoaded && !data.allRoundsCompleted) {
             // Timed out :(
             clearInterval(checkRoundLoaded);
-            alert('timed out!');
           }
         }, 2000);
       }, data.betweenPanelLength - 200);
@@ -458,8 +460,10 @@ var app = {
     app.showSidebar('love', false);
     app.showSidebar('nah', false);
     $('#position').css('width', '0%');
-    $('#round-title').html('Round ' + round.roundNumber);
     $('.count').html('0');
+
+    var roundNum = round ? round.roundNumber : 1;
+    $('#round-title').html('Round ' + roundNum);
   },
 
   loadRound: function(callback) {
@@ -507,11 +511,12 @@ var app = {
   incrementTimer: function() {
     data.roundCountdown -= 10;
 
-    if (data.roundCountdown <= 0) {
+    if (data.roundCountdown <= 10) {
+      $('#timer').html('00:000');
       app.roundTimedOut();
     } else {
       app.updateTimer(data.roundCountdown);
-      setTimeout(app.incrementTimer, 10);
+      timerInterval = setTimeout(app.incrementTimer, 10);
     }
   },
 
