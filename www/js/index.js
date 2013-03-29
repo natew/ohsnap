@@ -59,7 +59,8 @@ var Round = function(number) {
 
 var ItemResult = function(like, timeToDecide) {
   var self = this;
-  self.itemId = '';
+  self.styleId = '';
+  self.productId = 
   self.like = like;
   self.timeToDecide = timeToDecide;
 };
@@ -264,13 +265,13 @@ var app = {
             if (curLeft > data.screenWidth) {
               zImg.remove();
               itemTimeEnded = (new Date().getTime()) - data.itemTimeStarted;
-              app.recordItemResult(true, itemTimeEnded);
+              app.recordItemResult(true, itemTimeEnded, zImg);
               data.itemTimeStarted = new Date().getTime();
             }
             else if (curLeft < 0) {
               zImg.remove();
               itemTimeEnded = (new Date().getTime()) - data.itemTimeStarted;
-              app.recordItemResult(false, itemTimeEnded);
+              app.recordItemResult(false, itemTimeEnded, zImg);
               data.itemTimeStarted = new Date().getTime();
             }
             else {
@@ -310,15 +311,18 @@ var app = {
     }
   },
 
-  recordItemResult: function(like, timeToDecide) {
+  recordItemResult: function(like, timeToDecide, image) {
+    console.log(image[0]);
+
     var round = app.getCurrentRound();
     if (round.roundComplete) return false;
 
     round.countCompletedItems++;
     app.updateSidebar(round, like);
 
+    styleId
     // Push result
-    round.itemResults.push(new ItemResult(like, timeToDecide));
+    round.itemResults.push(new ItemResult(like, timeToDecide, styleId, productId));
 
     // If we have more images
     if (round.countCompletedItems != round.countItems) {
@@ -561,7 +565,6 @@ var app = {
     }
     // Send final round request.
     if (roundNumber == data.totalRounds) {
-
     } 
     // Send all other round data for round X where: 1 < x < totalRounds.
     else {
@@ -606,7 +609,10 @@ var app = {
 
     len = round.countItems;
     for (i = 0; i < len; i++) {
-      $('<img class="item-image centered" src="'+round.items[i].url+'">').appendTo('#game-images');
+      var item = round.items[i];
+      $('<img class="item-image centered" styleId="' + item.styleId + 
+          '" productId="' + item.productId +
+          '" src="'+item.url+'">').appendTo('#game-images');
     }
 
     data.imgWidth = $('.item-image').width();
