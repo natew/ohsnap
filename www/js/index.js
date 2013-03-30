@@ -175,12 +175,6 @@ var app = {
       app.incrementRound();
       app.loadRound();
       app.startNextRound();
-      try {
-        data.deviceId = device.uuid;
-      }
-      catch (err) {
-        console.log(err.message);
-      }
     });
   },
 
@@ -655,10 +649,13 @@ var app = {
   generateParamsStringForInitialRoundRequest: function() {
     var categories = $('.toggles .active').pluck('id').join(',');
 
+    console.log(data.deviceId);
     var rval =  'gender=' + data.gender + 
                 '&custId=' + data.deviceId + 
                 '&categories=' + categories + 
                 '&recommendationSize=' + data.itemCountToRequest[1];
+
+    console.log(rval);
     return rval;
   },
 
