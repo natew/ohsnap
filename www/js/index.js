@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 5, 2: 5, 3: 5 }, // seconds per round
+  timings: { 1: 6, 2: 6, 3: 6 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -441,7 +441,7 @@ var app = {
 
             if (recosLen) {
               for (i = 0; i < recosLen; i++) {
-                $('<img src="'+ recos[i].url +'" /></a>').appendTo('#final-results');
+                $('<a href=""><img src="'+ recos[i].url +'" /></a>').appendTo('#final-results');
               }
 
               app.showFinalRecos();
