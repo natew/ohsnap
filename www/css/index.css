@@ -466,7 +466,7 @@ h4 {
   display: block;
 }
 
-#end-of-round ul {
+.stats ul {
   border-top: 4px solid #ff126a;
   border-bottom: 4px solid #ff126a;
   list-style: none;
@@ -478,7 +478,7 @@ h4 {
   font-size: 22px;
 }
 
-#end-of-round ul:before {
+.stats ul:before {
   margin: -34px 0 12px;
   content: '';
   display: block;
@@ -488,7 +488,7 @@ h4 {
   text-align: center;
 }
 
-#end-of-round .stat-value {
+.stats .stat-value {
   padding: 2px 5px 2px 6px;
   background: #cc66ff;
   color: #0f1926;
@@ -496,15 +496,15 @@ h4 {
   margin: 0 5px 0 -10px;
 }
 
-#end-of-round .stat-pink .stat-value {
+.stats .stat-pink .stat-value {
   background: #ff126a;
 }
 
-#end-of-round .stat-teal .stat-value {
+.stats .stat-teal .stat-value {
   background: #2b8988;
 }
 
-#end-of-round .stat-blue .stat-value {
+.stats .stat-blue .stat-value {
   background: #2a4468;
 }
 
@@ -569,6 +569,7 @@ h4 {
 
 #badges {
   position: relative;
+  padding-top: 20px;
 }
 
 #badge-container {
@@ -580,6 +581,10 @@ h4 {
   bottom: 15px;
 }
 
+#badge-stats {
+  padding: 10px 15px;
+}
+
 .badge {
   position: absolute;
   top: 0;
@@ -588,19 +593,47 @@ h4 {
   display: block;
   margin: 0 auto;
   z-index: 100;
-  -webkit-animation: slam-in 1000ms 1 ease-in;
   -webkit-transform: translate3d(0,0,0);
 }
 
+.badge-0 {
+  -webkit-animation: slam-in 1000ms 1 ease-in;
+  -webkit-animation-fill-mode: forwards;
+}
+
+.badge-1 {
+  -webkit-animation: slam-in-one 1000ms 1 ease-in;
+  -webkit-animation-fill-mode: forwards;
+}
+
+.badge-2 {
+  -webkit-animation: slam-in-two 1000ms 1 ease-in;
+  -webkit-animation-fill-mode: forwards;
+}
+
+.badge-3 {
+  -webkit-animation: slam-in-three 1000ms 1 ease-in;
+  -webkit-animation-fill-mode: forwards;
+}
+
 @-webkit-keyframes slam-in {
-  from {
-    opacity: 0.0;
-    -webkit-transform: scale(10) rotate(360deg);
-  }
-  to {
-    opacity: 1.0;
-    -webkit-transform: scale(1) rotate(0deg);
-  }
+  from { opacity: 0.0; -webkit-transform: scale(10) rotate(360deg); }
+  to { opacity: 1.0; -webkit-transform: scale(1) rotate(0deg); }
+}
+
+@-webkit-keyframes slam-in-one {
+  from { opacity: 0.0; -webkit-transform: scale(10) rotate(360deg); }
+  to { opacity: 1.0; -webkit-transform: scale(1) rotate(10deg); }
+}
+
+@-webkit-keyframes slam-in-two {
+  from { opacity: 0.0; -webkit-transform: scale(10) rotate(360deg); }
+  to { opacity: 1.0; -webkit-transform: scale(1) rotate(-10deg); }
+}
+
+@-webkit-keyframes slam-in-three {
+  from { opacity: 0.0; -webkit-transform: scale(10) rotate(360deg); }
+  to { opacity: 1.0; -webkit-transform: scale(1) rotate(15deg); }
 }
 
 .content {

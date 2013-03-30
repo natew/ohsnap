@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 15, 2: 15, 3: 10 }, // seconds per round
+  timings: { 1: 1, 2: 1, 3: 5 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -416,36 +416,60 @@ var app = {
         app.showBetweenRoundPanel();
 
         setTimeout(function() {
-          app.showBadges();
+          app.showBadgesAndStats();
         }, data.betweenPanelLength);
       }
     }, 400);
   },
 
-  showBadges: function() {
-
+  showBadgesAndStats: function() {
     // Send final round request.
     app.sendFinalRoundResults(function(responseData) {
-         console.log(responseData);
+      var stats = responseData['stats'];
+      $('#end-of-round').removeClass('shown');
+      $('#badges').addClass('on');
+      $('#avg-choice .stat-value').html( app.formatMs(stats['avgSwipeTimeOverall']) );
+      $('#avg-like .stat-value').html( app.formatMs(stats['avgSwipeTimePerLike']) );
+      $('#avg-dislike .stat-value').html( app.formatMs(stats['avgSwipeTimePerDislike']) );
+
+      if (stats['playerTypes']) {
+        setTimeout(function() {
+          app.showBadges(stats['playerTypes'], function() {
+            var recos = responseData['recommendations'],
+                i,
+                recosLen = recos.length;
+
+            if (recosLen) {
+              for (i = 0; i < recosLen; i++) {
+                $('<img src="'+ recos[i].url +'" /></a>').appendTo('#final-results');
+              }
+
+              app.showFinalRecos();
+            }
+          });
+        }, 4000);
+      }
     }); 
+  },
 
-    $('#end-of-round').removeClass('shown');
-    $('#badges').addClass('on');
+  formatMs: function(ms) {
+    return (parseInt(ms, 10) / 1000).toFixed(2);
+  },
 
+  showBadges: function(badges, callback) {
     var i = 0,
-        badges = [ "Fast Finisher", "Cheap Date", "High Maintenance", "Old Fogey" ],
         badge_id_to_file = {
-          "Cheap Date": "cheap_date",
-          "Completionist": "completionist",
-          "Fast Finisher": "fast_finisher",
-          "High Maintenance": "high_maintenance",
-          "Slow Poke": "slow_poke",
-          "Old Fogey": "old_fogey"
+          "CHEAP_DATE": "cheap_date",
+          "COMPLETIONIST": "completionist",
+          "FAST_FINISHER": "fast_finisher",
+          "HIGH_MAINTENANCE": "high_maintenance",
+          "SLOW_POKE": "slow_poke",
+          "OLD_FOGEY": "old_fogey"
         };
 
     var badgesInterval = setInterval(function() { 
       console.log('show badge', i)
-      showBadge(badge_id_to_file[badges[i]]);
+      showBadge(badge_id_to_file[badges[i]], i);
       i++;
 
       if (i == badges.length) {
@@ -453,13 +477,13 @@ var app = {
 
         setTimeout(function() {
           $('#badges').addClass('off');
-          app.showFinalRecos();
+          if (callback) callback.call(this);
         }, 5000);
       }
     }, 2000);
 
-    function showBadge(file) {
-      $('<img class="badge" src="img/badges/'+file+'.png">').appendTo('#badge-container');
+    function showBadge(file, i) {
+      $('<a href=""><img class="badge badge-'+i+'" src="img/badges/'+file+'.png"></a>').appendTo('#badge-container');
     }
   },
 
@@ -658,7 +682,6 @@ var app = {
         type: 'get',
         url: 'http://ohsnap.elasticbeanstalk.com/game/finishGameG?' + app.generateParamsStringForRoundResultsRequest(),
         success: function(data) {
-          console.log(data);
           if (callback) callback.call(this, data);
         },
         error: function(xhr, status, error) {
