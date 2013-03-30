@@ -25,7 +25,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 1, 2: 1, 3: 5 }, // seconds per round
+  timings: { 1: 5, 2: 5, 3: 5 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -661,7 +661,7 @@ var app = {
   // Sending round results for rounds X where 1 < X < last round
   sendRoundResults: function(callback) {
   console.log('in sendRoundResults');
-
+  console.log('RoundResultsParams', app.generateParamsStringForRoundResultsRequest());
   $.ajax({
       dataType: 'jsonp',
       type: 'get',
