@@ -423,6 +423,12 @@ var app = {
   },
 
   showBadges: function() {
+
+    // Send final round request.
+    app.sendFinalRoundResults(function(responseData) {
+         console.log(responseData);
+    }); 
+
     $('#end-of-round').removeClass('shown');
     $('#badges').addClass('on');
 
@@ -593,17 +599,12 @@ var app = {
         app.loadImages(responseData.recommendations);
       });
     }
-    // Send final round request.
-    else if (roundNumber == data.totalRounds) {
-      
-    } 
     // Send all other round data for round X where: 1 < x < totalRounds.
     else {
       items = app.sendRoundResults(function(responseData) {
          console.log(responseData);
          app.loadImages(responseData.recommendations);
       });
-      // http://ohsnap.elasticbeanstalk.com/game/finishGameG?custId=1&gameId=1364578445189&roundId=1&roundActions=1:7893877:true:123456789&recommendationSize=5&callback=abc
     }
   },
 
@@ -649,6 +650,21 @@ var app = {
         console.log('sendRoundResults status: ' + status);
       }
     });  
+  },
+
+  sendFinalRoundResults: function(callback) {
+    $.ajax({
+        dataType: 'jsonp',
+        type: 'get',
+        url: 'http://ohsnap.elasticbeanstalk.com/game/finishGameG?' + app.generateParamsStringForRoundResultsRequest(),
+        success: function(data) {
+          console.log(data);
+          if (callback) callback.call(this, data);
+        },
+        error: function(xhr, status, error) {
+          console.log('sendRoundResults status: ' + status);
+        }
+      });    
   },
 
   generateParamsStringForRoundResultsRequest: function() {
