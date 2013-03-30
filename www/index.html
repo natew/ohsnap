@@ -189,7 +189,11 @@
       <script type="text/javascript" src="js/zepto-draggable.js"></script>
       <script type="text/javascript" src="js/index.js"></script>
       <script type="text/javascript">
-          app.initialize();
+        $(document).on('deviceready', function() {
+          app.initialize()
+        });
+
+        $(function() { app.initialize() });
       </script>
   </body>
 </html>
