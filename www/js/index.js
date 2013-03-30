@@ -95,6 +95,7 @@ var app = {
     data.roundLoaded = false;
     data.panelIndex = 0;
     data.noScroll = true;
+    $('.badge-wrapper').remove();
     $('.panel').removeClass('off on');
     $('#panel-home').addClass('on');
     $('.toggles a').removeClass('active');
@@ -481,7 +482,7 @@ var app = {
     }, 2000);
 
     function showBadge(file, i) {
-      $('<a href=""><img class="badge badge-'+i+'" src="img/badges/'+file+'.png"></a>').appendTo('#badge-container');
+      $('<a class="badge-wrapper" href=""><img class="badge badge-'+i+'" src="img/badges/'+file+'.png"></a>').appendTo('#badge-container');
     }
   },
 
