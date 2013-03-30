@@ -655,7 +655,7 @@ var app = {
                 '&categories=' + categories + 
                 '&recommendationSize=' + data.itemCountToRequest[1];
 
-    console.log(rval);
+    console.log('initial: ' + rval);
     return rval;
   },
 
