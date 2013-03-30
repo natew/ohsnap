@@ -594,13 +594,15 @@ var app = {
       });
     }
     // Send final round request.
-    if (roundNumber == data.totalRounds) {
-      items = app.sendRoundResults(function(responseData) {
-        app.loadImages(responseData.recommendations);
-      });
+    else if (roundNumber == data.totalRounds) {
+      
     } 
     // Send all other round data for round X where: 1 < x < totalRounds.
     else {
+      items = app.sendRoundResults(function(responseData) {
+         console.log(responseData);
+         app.loadImages(responseData.recommendations);
+      });
       // http://ohsnap.elasticbeanstalk.com/game/finishGameG?custId=1&gameId=1364578445189&roundId=1&roundActions=1:7893877:true:123456789&recommendationSize=5&callback=abc
     }
   },
@@ -631,7 +633,10 @@ var app = {
     return rval;
   },
 
+  // Sending round results for rounds X where 1 < X < last round
   sendRoundResults: function(callback) {
+  console.log('in sendRoundResults');
+
   $.ajax({
       dataType: 'jsonp',
       type: 'get',
@@ -647,34 +652,42 @@ var app = {
   },
 
   generateParamsStringForRoundResultsRequest: function() {
-    var currentRound = app.getCurrentRound.roundNumber;
+    var currentRound = app.getCurrentRound().roundNumber;
     var roundActions = app.generateRoundActionString(currentRound - 1);
 
     var rval =  'custId=' + data.deviceId +
                 '&gameId=' + data.gameId +
                 '&roundId=' + currentRound +
                 '&recommendationSize=' + data.itemCountToRequest[currentRound] +
-                '&roundActions' + roundActions;
+                '&roundActions=' + roundActions;
 
     return rval;
   },
 
   generateRoundActionString: function(roundNumber) {
+    console.log('roundNumber', roundNumber)
     var itemResults = data.rounds[roundNumber].itemResults;
 
-    var paramsArray = [];
+    var paramsArray = [],
+        i,
+        itemResultsLength = itemResults.length;
 
-    for (var i; i < itemResults.length; i++) {
+    for (i = 0; i < itemResultsLength; i++) {
       var resultArray = [];
+
+      console.log("itemResult", itemResults[i]);
+
       resultArray.push(itemResults[i].styleId);
       resultArray.push(itemResults[i].productId);
       resultArray.push(itemResults[i].like);
       resultArray.push(itemResults[i].timeToDecide);
 
       paramsArray.push(resultArray.join(':'))
+      console.log('resultArray', resultArray);
     }
     var rval = paramsArray.join(',');
-    console.log(rval);
+    console.log('resultArray', paramsArray);
+    console.log('rval',rval);
     return rval;
   },
 
