@@ -19,6 +19,8 @@
 
 var timerInterval, moverTimeout, countdownInterval, statsTimeout, checkRoundLoaded;
 
+var initialized = false;
+
 var data = {
   deviceId: "0H5N4P",
   gameId: -1,
@@ -73,6 +75,7 @@ var app = {
 
   // Application Constructor
   initialize: function() {
+    if (initialized) return;
     app.bindEvents();
     app.setupButtons();
     app.setupPanels();
@@ -80,6 +83,7 @@ var app = {
     app.setupCategories();
     app.setupStartButton();
     app.setupDoneButton();
+    initialized = true;
   },
 
   resetGame: function() {
@@ -171,12 +175,6 @@ var app = {
       app.incrementRound();
       app.loadRound();
       app.startNextRound();
-      try {
-        data.deviceId = device.uuid;
-      }
-      catch (err) {
-        console.log(err.message);
-      }
     });
   },
 
@@ -651,10 +649,13 @@ var app = {
   generateParamsStringForInitialRoundRequest: function() {
     var categories = $('.toggles .active').pluck('id').join(',');
 
+    console.log(data.deviceId);
     var rval =  'gender=' + data.gender + 
                 '&custId=' + data.deviceId + 
                 '&categories=' + categories + 
                 '&recommendationSize=' + data.itemCountToRequest[1];
+
+    console.log(rval);
     return rval;
   },
 
@@ -795,28 +796,9 @@ var app = {
   // 'load', 'deviceready', 'offline', and 'online'.
   bindEvents: function() {
     $(document)
-      .on('deviceready', this.onDeviceReady)
       .on('touchmove', function(e) {
         if (data.noScroll) e.preventDefault();
       });
-  },
-
-  // deviceready Event Handler
-  //
-  // The scope of 'this' is the event. In order to call the 'receivedEvent'
-  // function, we must explicity call 'app.receivedEvent(...);'
-  onDeviceReady: function() {
-    // function getPhoneGapPath() {
-
-    //     var path = window.location.pathname;
-    //     path = path.substr( 0, path.length - 10 );
-    //     return 'file://' + path;
-
-    // };
-
-    // var resource = getPhoneGapPath() + 'audio/hiccup.wav';
-    // var sound = new Media('../audio/hiccup.wav');
-    // sound.play();
   }
 
 };
