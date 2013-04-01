@@ -113,15 +113,6 @@ h4 {
   -webkit-transform: translate3d(0,0,0);
 }
 
-@-webkit-keyframes fall {
-  from { opacity: 1.0; }
-
-  to {
-    opacity: 0.0;
-    -webkit-transform: translate3d(-100px, -100px, 0) rotate(-25deg);
-  }
-}
-
 @-webkit-keyframes fade-out {
   from { opacity: 1.0; }
   to { opacity: 0.0; }
@@ -146,21 +137,21 @@ h4 {
 }
 
 .panel.off {
-  -webkit-animation: fade-out 350ms 1;
-  -webkit-animation-fill-mode: forwards;
-  -webkit-animation-delay: 150ms;
   display: block;
   z-index: 3;
   pointer-events: none;
-}
-
-.panel a {
-  -webkit-transform: translate3d(0,0,0);
-}
-
-.panel.off a {
-  -webkit-animation: fall 200ms 1;
+  -webkit-animation: fall 800ms 1;
   -webkit-animation-fill-mode: forwards;
+}
+
+@-webkit-keyframes fall {
+  from { opacity: 1.0; }
+
+  to {
+    opacity: 0.0;
+    -webkit-transform: translate3d(-100px, -100px, 0) rotate3d(12, 15, -4, 65deg);
+
+  }
 }
 
 .panel.next {
