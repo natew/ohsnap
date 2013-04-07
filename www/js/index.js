@@ -155,7 +155,6 @@ var app = {
       });
 
       data.noScroll = false;
-      $('#panel-user-stats').addClass('next');
       $('#panel-home').addClass('off');
       $('#panel-user-stats').addClass('on');
     });
