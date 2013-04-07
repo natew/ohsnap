@@ -27,7 +27,7 @@ var data = {
   panels: [],
   panelIndex: 0,
   gender: null,
-  timings: { 1: 6, 2: 6, 3: 6 }, // seconds per round
+  timings: { 1: 15, 2: 12, 3: 10 }, // seconds per round
   roundCountdown: null,
   currentRound: 0,
   roundLoaded: false,
@@ -41,7 +41,7 @@ var data = {
   reCenterImage: false,
   noScroll: true,
   cdStart: 2,
-  itemCountToRequest: {1: 9, 2: 8, 3:6}, // How many items to request per round
+  itemCountToRequest: {1: 12, 2: 10, 3: 8}, // How many items to request per round
   cdTimer: $('#countdown'),
   cdPanel: $('#panel-countdown'),
   numSelected: 0
