@@ -33,7 +33,7 @@
             <div class="center">
               <a id="get-snappin" class="button btn-next btn-alt icon-before">Get Snappin'</a>
               <a id="how-to-play-button" class="button">How to Play</a>
-              <a id="settings" class="button disabled">View My Stats</a>
+              <a id="user-stats-button" class="button">View My Stats</a>
             </div>
           </div>
 
@@ -173,7 +173,23 @@
           </div>
           <!-- end how to play -->
 
+          <!-- User Stats -->
+          <div id="panel-user-stats" class="panel">
+            <div class="header">
+              <a class="back"></a>
+              My Stats
+          </div>
+          <div class="content">
+            <p>Total Games Played: <span id="number-games-played" class="stat-value">--</span></p>    
+            <p>Total Products Viewed: <span id="total-products-viewed">--</span></p> 
+            <p>Total Products Liked: <span id="total-products-liked">--</span></p>
+            <p>Total Products Disliked: <span id="total-products-disliked">--</span></p>        
+            <p>Avg Swipe Time: <span id="avg-swipe-time-overall">--</span> sec</p>
+            <p>Avg Swipe Time (Like): <span id="avg-swipe-time-per-like">--</span> sec</p>
+            <p>Avg Swipe Time (Dislike): <span id="avg-swipe-time-per-dislike">--</span> sec</p>    
+          </div>
         </div>
+        <!-- End User Stats -->
 
         <!--
           <div id="deviceready" class="blink">

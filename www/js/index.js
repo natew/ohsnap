@@ -142,6 +142,38 @@ var app = {
       $('#panel-home').addClass('off');
       $('#panel-how-to').addClass('on');
     });
+
+    $('#user-stats-button').on('tap', function() {
+      app.getUserStats(function(responseData) {
+        $('#number-games-played').text(responseData.numGamesPlayed);
+        $('#total-products-viewed').text(responseData.totalProductsViewed);
+        $('#total-products-liked').text(responseData.numLikes);
+        $('#total-products-disliked').text(responseData.numDislikes);
+        $('#avg-swipe-time-overall').text(app.formatMs(responseData.avgSwipeTimeOverall));
+        $('#avg-swipe-time-per-like').text(app.formatMs(responseData.avgSwipeTimePerLike));
+        $('#avg-swipe-time-per-dislike').text(app.formatMs(responseData.avgSwipeTimePerDislike));
+      });
+
+      data.noScroll = false;
+      $('#panel-user-stats').addClass('next');
+      $('#panel-home').addClass('off');
+      $('#panel-user-stats').addClass('on');
+    });
+  },
+
+  getUserStats: function(callback) {
+    $.ajax({
+      dataType: 'jsonp',
+      type: 'get',
+      url: 'http://ohsnap.elasticbeanstalk.com/stats/getAllStats?custId=' + data.deviceId,
+      success: function(data) {
+        console.log(data);
+        if (callback) callback.call(this, data);
+      },
+      error: function(xhr, status, error) {
+        console.log('getUserStats status: ' + status);
+      }
+    });
   },
 
   setupCategories: function() {
