@@ -40,7 +40,7 @@ var data = {
   itemTimeStarted: -1, // To track how long a user takes to decide on an item
   reCenterImage: false,
   noScroll: true,
-  cdStart: 2,
+  cdStart: 3,
   itemCountToRequest: {1: 12, 2: 10, 3: 8}, // How many items to request per round
   cdTimer: $('#countdown'),
   cdPanel: $('#panel-countdown'),
@@ -477,7 +477,7 @@ var app = {
               app.showFinalRecos();
             }
           });
-        }, 4000);
+        }, 3000);
       }
     }); 
   },
@@ -601,7 +601,7 @@ var app = {
   startNextRound: function() {
     $('#start-round-title').html('Round ' + data.currentRound);
     data.cdPanel.addClass('shown').removeClass('off');
-    data.cdStart = 2;
+    data.cdStart = 3;
     data.cdTimer.html(data.cdStart);
     app.doCountdown();
     countdownInterval = setInterval(app.doCountdown, 1000);
